@@ -1,0 +1,87 @@
+{
+  "entities": {
+    "Message": {
+      "title": "Message",
+      "description": "A signaling message sent between users in a room.",
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "The type of the message, e.g., 'TRACK_AVAILABLE', 'REQUEST_FULL_STATE', 'SYNC_STATE'."
+        },
+        "payload": {
+          "type": "object",
+          "description": "The message payload, containing data specific to the message type."
+        },
+        "senderId": {
+          "type": "string",
+          "description": "The unique ID of the sender."
+        },
+        "senderRole": {
+          "type": "string",
+          "description": "The role of the sender, e.g., 'admin', 'listener', 'teacher'."
+        },
+        "timestamp": {
+          "type": "timestamp",
+          "description": "The time the message was sent."
+        }
+      },
+      "required": ["type", "senderId", "senderRole", "timestamp"]
+    },
+    "Organization": {
+      "title": "Organization",
+      "description": "An organization created by an admin.",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "inviteCode": { "type": "string" },
+        "sfuPreference": { "type": "string" },
+        "createdAt": { "type": "timestamp" }
+      },
+      "required": ["name", "inviteCode", "sfuPreference", "createdAt"]
+    },
+    "Secret": {
+      "title": "Secret",
+      "description": "API keys for an organization.",
+      "type": "object",
+      "properties": {
+        "geminiKey": { "type": "string" },
+        "sfuKey1": { "type": "string" },
+        "sfuKey2": { "type": "string" }
+      },
+      "required": ["geminiKey", "sfuKey1"]
+    },
+    "User": {
+      "title": "User",
+      "description": "A user in the system.",
+      "type": "object",
+      "properties": {
+        "email": { "type": "string" },
+        "orgId": { "type": "string" },
+        "role": { "type": "string" },
+        "status": { "type": "string" }
+      },
+      "required": ["orgId", "role", "status"]
+    }
+  },
+  "firestore": {
+    "rooms/{roomId}/messages/{messageId}": {
+      "schema": {
+        "$ref": "Message"
+      },
+      "description": "Messages sent within a specific room."
+    },
+    "organizations/{orgId}": {
+      "schema": { "$ref": "Organization" },
+      "description": "Organizations."
+    },
+    "organizations/{orgId}/secrets/{secretId}": {
+      "schema": { "$ref": "Secret" },
+      "description": "Secrets for an organization."
+    },
+    "users/{userId}": {
+      "schema": { "$ref": "User" },
+      "description": "Users."
+    }
+  }
+}
