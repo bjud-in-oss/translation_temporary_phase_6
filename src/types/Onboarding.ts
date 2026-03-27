@@ -1,17 +1,24 @@
-export interface MagnifierOverlay {
-  ringX: number; // Procent (0-100) för lilla måltavlan (X)
-  ringY: number; // Procent (0-100) för lilla måltavlan (Y)
-  magX: number;  // Procent (0-100) för det stora förstoringsglaset (X)
-  magY: number;  // Procent (0-100) för det stora förstoringsglaset (Y)
-  zoom: number;  // Zoom-faktor (ex. 3 för 300%)
-  text?: string; // Valfri instruktion under förstoringsglaset
+export interface CropSettings { x: number; y: number; zoom: number; }
+export interface MagnifierSettings { x: number; y: number; width: number; height: number; zoom: number; }
+export interface TextOverlay { text: string; theme?: 'dark' | 'light'; }
+
+export interface StoryBlock {
+  id: string;
+  type: 'image' | 'text';
+  imageId?: string; // URL
+  crop?: CropSettings;
+  magnifier?: MagnifierSettings;
+  textOverlay?: TextOverlay;
+  textContent?: string; // För rena textblock
 }
 
-export interface OnboardingCard {
+export interface StorySlide {
   id: string;
-  provider: 'intro' | 'gemini' | 'livekit' | 'daily' | 'cloudflare' | 'outro' | 'sfu-choice' | 'keys';
-  title: string;
-  description: string;
-  imageUrl?: string; // Valfri för text-only kort
-  overlays?: MagnifierOverlay[];
+  layout: '1-col' | '2-col' | '3-col';
+  blocks: StoryBlock[];
+}
+
+export interface OnboardingGuide {
+  id: string;
+  slides: StorySlide[];
 }
