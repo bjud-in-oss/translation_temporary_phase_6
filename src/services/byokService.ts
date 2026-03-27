@@ -1,4 +1,4 @@
-import { collection, doc, setDoc, addDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, doc, setDoc, addDoc, serverTimestamp, query, where, getDocs } from 'firebase/firestore';
 import { db, auth } from '../../firebase';
 
 export interface ByokKeys {
@@ -6,6 +6,23 @@ export interface ByokKeys {
   sfuKey1: string;
   sfuKey2?: string;
 }
+
+export const getOrgIdByInviteCode = async (inviteCode: string): Promise<string | null> => {
+  try {
+    const orgsRef = collection(db, 'organizations');
+    const q = query(orgsRef, where('inviteCode', '==', inviteCode));
+    const querySnapshot = await getDocs(q);
+
+    if (!querySnapshot.empty) {
+      return querySnapshot.docs[0].id;
+    }
+    
+    return null;
+  } catch (error) {
+    console.error('Error fetching orgId by invite code:', error);
+    return null;
+  }
+};
 
 const generateInviteCode = () => {
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';

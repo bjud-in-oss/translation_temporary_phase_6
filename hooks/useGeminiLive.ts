@@ -10,6 +10,8 @@ import { useLiveDiagnostics } from './useLiveDiagnostics';
 import { useLiveConfig } from './useLiveConfig';
 import { useBackgroundMonitor } from './useBackgroundMonitor';
 import { useTranscriptEngine } from './useTranscriptEngine';
+import { getOrgIdByInviteCode } from '../src/services/byokService';
+import { fetchSecureCredentials } from '../src/services/credentialsService';
 
 // Helper to create 800ms of silence (Base64 PCM) for The Clean Break Protocol
 const SILENCE_BURST_B64 = (() => {
@@ -553,11 +555,22 @@ export function useGeminiLive() {
       if (isHandshakingRef.current) return;
       isHandshakingRef.current = true;
 
-      // TODO: När vi har implementerat rums-uppslagning och vet vilket orgId vi är i,
-      // ska vi byta ut import.meta.env mot:
-      // const credentials = await fetchSecureCredentials(currentOrgId);
-      // const apiKey = credentials.geminiKey;
-      const apiKey = import.meta.env.VITE_GEMINI_API_KEY || import.meta.env.VITE_API_KEY || process.env.API_KEY || process.env.GEMINI_API_KEY;
+      let apiKey: string | null = null;
+      try {
+          const orgId = await getOrgIdByInviteCode(config.currentRoom);
+          if (!orgId) {
+              throw new Error("Kunde inte hitta organisationen för detta rum.");
+          }
+          const creds = await fetchSecureCredentials(orgId);
+          apiKey = creds.geminiKey;
+          if (!apiKey) {
+              throw new Error("Ingen Gemini API-nyckel hittades för denna organisation.");
+          }
+      } catch (e: any) {
+          setError(e.message || "Kunde inte hämta API-nycklar.");
+          isHandshakingRef.current = false;
+          return;
+      }
       
       // CRITICAL FIX: Inject dynamic variables into custom instruction at runtime
       // IF custom instruction exists, inject. IF NOT, build default from presets.
@@ -611,7 +624,7 @@ export function useGeminiLive() {
       } finally {
           isHandshakingRef.current = false;
       }
-  }, [sessionConnect, sessionDisconnect, inputContextRef, initAudioInput, status, initAudioEngine]);
+  }, [sessionConnect, sessionDisconnect, inputContextRef, initAudioInput, status, initAudioEngine, config.currentRoom]);
 
   const simulateNetworkDrop = useCallback(() => {
       sessionDisconnect(); 

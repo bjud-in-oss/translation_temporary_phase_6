@@ -1,10 +1,12 @@
-import { auth } from '../firebase';
+import { auth } from '../../firebase';
 
 export interface SecureCredentials {
   geminiKey: string | null;
   sfuKey1: string | null;
   sfuKey2: string | null;
 }
+
+let cachedCredentials: any = null;
 
 /**
  * Fetches secure credentials from the Netlify BFF (Backend-For-Frontend).
@@ -14,6 +16,10 @@ export interface SecureCredentials {
  * @returns A promise that resolves to the secure credentials.
  */
 export const fetchSecureCredentials = async (orgId: string): Promise<SecureCredentials> => {
+  if (cachedCredentials) {
+    return cachedCredentials;
+  }
+
   const currentUser = auth.currentUser;
   
   if (!currentUser) {
@@ -40,5 +46,6 @@ export const fetchSecureCredentials = async (orgId: string): Promise<SecureCrede
 
   // Return the result
   const data = await response.json();
-  return data as SecureCredentials;
+  cachedCredentials = data as SecureCredentials;
+  return cachedCredentials;
 };

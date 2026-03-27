@@ -1,4 +1,6 @@
 import { useState, useCallback, useRef } from 'react';
+import { getOrgIdByInviteCode } from '../src/services/byokService';
+import { fetchSecureCredentials } from '../src/services/credentialsService';
 
 export type SFUStatus = 'disconnected' | 'connecting' | 'connected';
 
@@ -31,6 +33,13 @@ export function useCloudflareSFU(roomId: string | null) {
   const pendingSubRef = useRef<{remoteSessionId: string, trackName: string} | null>(null);
   const subscribedTracksRef = useRef<Set<string>>(new Set());
 
+  const getSfuCredentials = async () => {
+    if (!roomId) throw new Error("No roomId");
+    const orgId = await getOrgIdByInviteCode(roomId);
+    if (!orgId) throw new Error("Invalid orgId");
+    return await fetchSecureCredentials(orgId);
+  };
+
   const subscribeToTrack = useCallback(async (remoteSessionId: string, trackName: string) => {
     const pc = peerConnectionRef.current;
     const sessionId = sessionIdRef.current;
@@ -41,8 +50,16 @@ export function useCloudflareSFU(roomId: string | null) {
         return;
     }
 
-    const appId = import.meta.env.VITE_CLOUDFLARE_APP_ID;
-    const appSecret = import.meta.env.VITE_CLOUDFLARE_APP_SECRET;
+    let appId: string | null = null;
+    let appSecret: string | null = null;
+    try {
+      const creds = await getSfuCredentials();
+      appId = creds.sfuKey1;
+      appSecret = creds.sfuKey2;
+    } catch (e) {
+      console.error("[SFU] Failed to get credentials:", e);
+      return;
+    }
 
     if (!appId || !appSecret) {
       console.error("[SFU] Cannot subscribe to track: missing connection or credentials", { pc: !!pc, sessionId, appId: !!appId, appSecret: !!appSecret });
@@ -110,13 +127,21 @@ export function useCloudflareSFU(roomId: string | null) {
       }
       console.error("[SFU] Failed to subscribe to track:", error);
     }
-  }, []);
+  }, [roomId]);
 
   const connect = useCallback(async () => {
     if (!roomId) return;
     
-    const appId = import.meta.env.VITE_CLOUDFLARE_APP_ID;
-    const appSecret = import.meta.env.VITE_CLOUDFLARE_APP_SECRET;
+    let appId: string | null = null;
+    let appSecret: string | null = null;
+    try {
+      const creds = await getSfuCredentials();
+      appId = creds.sfuKey1;
+      appSecret = creds.sfuKey2;
+    } catch (e) {
+      console.error("[SFU] Failed to get credentials:", e);
+      return;
+    }
 
     if (!appId || !appSecret) {
       console.error("[SFU] Cloudflare credentials missing in environment variables");
@@ -221,8 +246,17 @@ export function useCloudflareSFU(roomId: string | null) {
   const publishAudio = useCallback(async (track: MediaStreamTrack) => {
     const pc = peerConnectionRef.current;
     const sessionId = sessionIdRef.current;
-    const appId = import.meta.env.VITE_CLOUDFLARE_APP_ID;
-    const appSecret = import.meta.env.VITE_CLOUDFLARE_APP_SECRET;
+    
+    let appId: string | null = null;
+    let appSecret: string | null = null;
+    try {
+      const creds = await getSfuCredentials();
+      appId = creds.sfuKey1;
+      appSecret = creds.sfuKey2;
+    } catch (e) {
+      console.error("[SFU] Failed to get credentials:", e);
+      return;
+    }
 
     if (!pc || !sessionId || !appId || !appSecret) {
       console.error("[SFU] Cannot publish audio: missing connection or credentials");
@@ -285,7 +319,7 @@ export function useCloudflareSFU(roomId: string | null) {
       console.error("[SFU] Failed to publish audio:", error);
       return null;
     }
-  }, []);
+  }, [roomId]);
 
   return { status, connect, disconnect, publishAudio, subscribeToTrack, remoteStream, publishedTrackRef };
 }
