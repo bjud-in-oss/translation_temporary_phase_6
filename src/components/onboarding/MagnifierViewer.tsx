@@ -73,7 +73,7 @@ const MagnifierViewer: React.FC<Props> = ({ block }) => {
             }}
           />
 
-          {/* Förstoringsglas med The Clone Trick */}
+          {/* Förstoringsglas med Invers-Procent Trick */}
           <div 
             className="absolute border-4 border-red-500 rounded-full bg-slate-900 shadow-2xl z-30 pointer-events-none overflow-hidden"
             style={{
@@ -87,12 +87,16 @@ const MagnifierViewer: React.FC<Props> = ({ block }) => {
             <div
               style={{
                 position: 'absolute',
-                width: '100cqw',
-                height: '100cqw',
-                left: `calc(50% - ${magnifier.targetX}cqw)`,
-                top: `calc(50% - ${magnifier.targetY}cqw)`,
+                // 1. Återskapa huvudcontainerns exakta storlek i pixlar, oavsett glasets form
+                width: `${(100 / (magnifier.width || 1)) * 100}%`,
+                height: `${(100 / (magnifier.height || 1)) * 100}%`,
+                // 2. Förskjut klonen så att targetX/Y hamnar exakt i mitten av glaset
+                left: `${50 - (magnifier.targetX / (magnifier.width || 1)) * 100}%`,
+                top: `${50 - (magnifier.targetY / (magnifier.height || 1)) * 100}%`,
+                // 3. Zooma klonen utifrån den nya målpunkten
                 transformOrigin: `${magnifier.targetX}% ${magnifier.targetY}%`,
                 transform: `scale(${magnifier.zoom})`,
+                // 4. Måla ut bakgrundsbilden exakt som i huvudvyn
                 backgroundImage: `url(${block.imageId})`,
                 backgroundPosition: `${crop.x}% ${crop.y}%`,
                 backgroundSize: `${crop.zoom * 100}% auto`,
