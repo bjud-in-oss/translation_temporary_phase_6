@@ -107,11 +107,19 @@ const MagnifierViewer: React.FC<Props> = ({ block }) => {
         </>
       )}
 
-      {/* Text Overlay */}
+      {/* Flexibel Text Overlay */}
       {block.textOverlay && (
-        <div className={`absolute bottom-4 left-4 right-4 p-4 rounded-xl text-center z-40 ${
-          block.textOverlay.theme === 'light' ? 'bg-white/90 text-black' : 'bg-black/60 backdrop-blur-sm text-white'
-        }`}>
+        <div 
+          className="absolute z-40 bg-black/70 backdrop-blur-sm p-4 rounded-xl text-white break-words overflow-y-auto"
+          style={{
+            left: `${block.textOverlay.x || 10}%`,
+            top: `${block.textOverlay.y || 70}%`,
+            width: `${block.textOverlay.width || 80}%`,
+            height: block.textOverlay.height ? `${block.textOverlay.height}%` : 'auto',
+            fontSize: `${block.textOverlay.fontSize || 100}%`, // Enkel %-baserad storlek
+            transform: 'translate(0, 0)', // Justera om du vill centrera via X/Y
+          }}
+        >
           {block.textOverlay.text}
         </div>
       )}

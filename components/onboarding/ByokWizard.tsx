@@ -1,43 +1,11 @@
 import React, { useState } from 'react';
 import { StorySlide } from '../../src/types/Onboarding';
 import MagnifierViewer from '../../src/components/onboarding/MagnifierViewer';
-
-const mockGuide: StorySlide[] = [
-  {
-    id: 'slide-1',
-    layout: '1-col',
-    blocks: [
-      {
-        id: 'block-1',
-        type: 'text',
-        textContent: 'Välkommen till BYOK'
-      }
-    ]
-  },
-  {
-    id: 'slide-2',
-    layout: '2-col',
-    blocks: [
-      {
-        id: 'block-2',
-        type: 'image',
-        imageId: 'https://picsum.photos/seed/byok1/800/800',
-        textOverlay: { text: 'Steg 1: Skapa konto', theme: 'dark' }
-      },
-      {
-        id: 'block-3',
-        type: 'image',
-        imageId: 'https://picsum.photos/seed/byok2/800/800',
-        crop: { x: 30, y: 30, zoom: 2 },
-        magnifier: { x: 70, y: 70, width: 30, height: 30, zoom: 3, targetX: 30, targetY: 30 }
-      }
-    ]
-  }
-];
+import { SYSTEM_GUIDE } from '../../src/data/StoryGuideData';
 
 const ByokWizard: React.FC = () => {
   const [currentStep, setCurrentStep] = useState(0);
-  const slides = mockGuide;
+  const slides = SYSTEM_GUIDE.slides;
   const currentSlide = slides[currentStep];
 
   const handleNext = () => {

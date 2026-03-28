@@ -8,7 +8,15 @@ export interface MagnifierSettings {
   targetX: number; // Målpunktens X
   targetY: number; // Målpunktens Y
 }
-export interface TextOverlay { text: string; theme?: 'dark' | 'light'; }
+export interface TextOverlay { 
+  text: string; 
+  theme?: 'dark' | 'light'; 
+  x?: number; // Position X i procent av blocket (default: 50 for center, or based on width)
+  y?: number; // Position Y i procent av blocket (default: bottom-aligned)
+  width?: number; // Bredd i procent av blocket (default: 80)
+  height?: number; // Höjd i procent av blocket (automatisk radbrytning, men kan begränsas)
+  fontSize?: number; // Storlek i procent relativt containern (default: t.ex. 4cqw, men vi använder % för nu)
+}
 
 export interface StoryBlock {
   id: string;

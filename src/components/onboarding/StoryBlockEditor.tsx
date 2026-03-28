@@ -9,7 +9,7 @@ const StoryBlockEditor: React.FC = () => {
     imageId: 'https://picsum.photos/seed/editor/800/450',
     crop: { x: 50, y: 50, zoom: 1 },
     magnifier: { x: 75, y: 50, width: 30, height: 30, zoom: 2, targetX: 50, targetY: 50 },
-    textOverlay: { text: 'Test text', theme: 'dark' }
+    textOverlay: { text: 'Test text', theme: 'dark', x: 10, y: 70, width: 80, fontSize: 100 }
   });
 
   const handleCopy = () => {
@@ -191,14 +191,76 @@ const StoryBlockEditor: React.FC = () => {
         <div className="mb-8 p-4 bg-slate-800/50 rounded-xl border border-slate-700">
           <h3 className="text-lg font-semibold mb-4 text-indigo-400">C. Text Overlay</h3>
           
-          <div>
-            <label className="block text-sm mb-2 text-slate-300">Textinnehåll</label>
-            <input 
-              type="text" 
-              value={block.textOverlay?.text || ''}
-              onChange={(e) => updateText(e.target.value)}
-              className="w-full bg-slate-950 border border-slate-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-indigo-500"
-            />
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm mb-2 text-slate-300">Textinnehåll</label>
+              <input 
+                type="text" 
+                value={block.textOverlay?.text || ''}
+                onChange={(e) => updateText(e.target.value)}
+                className="w-full bg-slate-950 border border-slate-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-indigo-500"
+              />
+            </div>
+
+            <div>
+              <div className="flex justify-between text-sm mb-1">
+                <span>Position X (%)</span>
+                <span className="text-slate-400">{block.textOverlay?.x || 10}%</span>
+              </div>
+              <input 
+                type="range" min="0" max="100" value={block.textOverlay?.x || 10}
+                onChange={(e) => setBlock(prev => ({ ...prev, textOverlay: { ...prev.textOverlay!, x: Number(e.target.value) } }))}
+                className="w-full accent-indigo-500"
+              />
+            </div>
+
+            <div>
+              <div className="flex justify-between text-sm mb-1">
+                <span>Position Y (%)</span>
+                <span className="text-slate-400">{block.textOverlay?.y || 70}%</span>
+              </div>
+              <input 
+                type="range" min="0" max="100" value={block.textOverlay?.y || 70}
+                onChange={(e) => setBlock(prev => ({ ...prev, textOverlay: { ...prev.textOverlay!, y: Number(e.target.value) } }))}
+                className="w-full accent-indigo-500"
+              />
+            </div>
+
+            <div>
+              <div className="flex justify-between text-sm mb-1">
+                <span>Bredd (%)</span>
+                <span className="text-slate-400">{block.textOverlay?.width || 80}%</span>
+              </div>
+              <input 
+                type="range" min="10" max="100" value={block.textOverlay?.width || 80}
+                onChange={(e) => setBlock(prev => ({ ...prev, textOverlay: { ...prev.textOverlay!, width: Number(e.target.value) } }))}
+                className="w-full accent-indigo-500"
+              />
+            </div>
+
+            <div>
+              <div className="flex justify-between text-sm mb-1">
+                <span>Höjd (%) (0 = auto)</span>
+                <span className="text-slate-400">{block.textOverlay?.height || 0}%</span>
+              </div>
+              <input 
+                type="range" min="0" max="100" value={block.textOverlay?.height || 0}
+                onChange={(e) => setBlock(prev => ({ ...prev, textOverlay: { ...prev.textOverlay!, height: Number(e.target.value) } }))}
+                className="w-full accent-indigo-500"
+              />
+            </div>
+
+            <div>
+              <div className="flex justify-between text-sm mb-1">
+                <span>Textstorlek (%)</span>
+                <span className="text-slate-400">{block.textOverlay?.fontSize || 100}%</span>
+              </div>
+              <input 
+                type="range" min="50" max="200" value={block.textOverlay?.fontSize || 100}
+                onChange={(e) => setBlock(prev => ({ ...prev, textOverlay: { ...prev.textOverlay!, fontSize: Number(e.target.value) } }))}
+                className="w-full accent-indigo-500"
+              />
+            </div>
           </div>
         </div>
 
