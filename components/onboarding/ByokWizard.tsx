@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { StorySlide } from '../../src/types/Onboarding';
+import MagnifierViewer from '../../src/components/onboarding/MagnifierViewer';
 
 const mockGuide: StorySlide[] = [
   {
@@ -26,7 +27,9 @@ const mockGuide: StorySlide[] = [
       {
         id: 'block-3',
         type: 'image',
-        imageId: 'https://picsum.photos/seed/byok2/800/800'
+        imageId: 'https://picsum.photos/seed/byok2/800/800',
+        crop: { x: 30, y: 30, zoom: 2 },
+        magnifier: { x: 70, y: 70, width: 30, height: 30, zoom: 3 }
       }
     ]
   }
@@ -73,20 +76,13 @@ const ByokWizard: React.FC = () => {
         } grid-cols-1`}>
           {currentSlide.blocks.map(block => (
             <div key={block.id} className="relative aspect-square rounded-2xl overflow-hidden bg-slate-800 flex items-center justify-center">
-              {block.type === 'image' && block.imageId && (
-                <img src={block.imageId} alt="" className="absolute inset-0 w-full h-full object-cover" referrerPolicy="no-referrer" />
-              )}
-              {block.type === 'text' && (
+              {block.type === 'image' && block.imageId ? (
+                <MagnifierViewer block={block} />
+              ) : block.type === 'text' ? (
                 <div className="p-8 text-center text-2xl font-bold">
                   {block.textContent}
                 </div>
-              )}
-              {block.textOverlay && (
-                <div className="absolute bottom-4 left-4 right-4 bg-black/60 backdrop-blur-sm p-4 rounded-xl text-white text-center">
-                  {block.textOverlay.text}
-                </div>
-              )}
-              {/* <MagnifierViewer /> */}
+              ) : null}
             </div>
           ))}
         </div>
@@ -94,7 +90,7 @@ const ByokWizard: React.FC = () => {
 
       {/* Navigation Zones */}
       <div 
-        className="absolute inset-y-0 left-0 w-1/4 z-30 cursor-pointer group flex items-center pl-4"
+        className="absolute inset-y-0 left-0 w-1/6 z-40 cursor-pointer group flex items-center pl-4"
         onClick={handlePrev}
       >
         {currentStep > 0 && (
@@ -106,7 +102,7 @@ const ByokWizard: React.FC = () => {
         )}
       </div>
       <div 
-        className="absolute inset-y-0 right-0 w-1/4 z-30 cursor-pointer group flex items-center justify-end pr-4"
+        className="absolute inset-y-0 right-0 w-1/6 z-40 cursor-pointer group flex items-center justify-end pr-4"
         onClick={handleNext}
       >
         {currentStep < slides.length - 1 && (
