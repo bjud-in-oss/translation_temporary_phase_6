@@ -1,5 +1,13 @@
 export interface CropSettings { x: number; y: number; zoom: number; }
-export interface MagnifierSettings { x: number; y: number; width: number; height: number; zoom: number; }
+export interface MagnifierSettings { 
+  x: number; 
+  y: number; 
+  width: number; 
+  height: number; 
+  zoom: number; 
+  targetX: number; // Målpunktens X
+  targetY: number; // Målpunktens Y
+}
 export interface TextOverlay { text: string; theme?: 'dark' | 'light'; }
 
 export interface StoryBlock {

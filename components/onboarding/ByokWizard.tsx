@@ -29,7 +29,7 @@ const mockGuide: StorySlide[] = [
         type: 'image',
         imageId: 'https://picsum.photos/seed/byok2/800/800',
         crop: { x: 30, y: 30, zoom: 2 },
-        magnifier: { x: 70, y: 70, width: 30, height: 30, zoom: 3 }
+        magnifier: { x: 70, y: 70, width: 30, height: 30, zoom: 3, targetX: 30, targetY: 30 }
       }
     ]
   }

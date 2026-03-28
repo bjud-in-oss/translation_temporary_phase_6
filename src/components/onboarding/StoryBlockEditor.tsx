@@ -8,7 +8,7 @@ const StoryBlockEditor: React.FC = () => {
     type: 'image',
     imageId: 'https://picsum.photos/seed/editor/800/450',
     crop: { x: 50, y: 50, zoom: 1 },
-    magnifier: { x: 75, y: 50, width: 30, height: 30, zoom: 2 },
+    magnifier: { x: 75, y: 50, width: 30, height: 30, zoom: 2, targetX: 50, targetY: 50 },
     textOverlay: { text: 'Test text', theme: 'dark' }
   });
 
@@ -100,6 +100,30 @@ const StoryBlockEditor: React.FC = () => {
           <h3 className="text-lg font-semibold mb-4 text-orange-400">B. Magnifier / Glaset</h3>
           
           <div className="space-y-4">
+            <div>
+              <div className="flex justify-between text-sm mb-1">
+                <span>Målpunkt X (%)</span>
+                <span className="text-slate-400">{block.magnifier?.targetX}%</span>
+              </div>
+              <input 
+                type="range" min="0" max="100" value={block.magnifier?.targetX}
+                onChange={(e) => updateMagnifier('targetX', Number(e.target.value))}
+                className="w-full accent-orange-500"
+              />
+            </div>
+
+            <div>
+              <div className="flex justify-between text-sm mb-1">
+                <span>Målpunkt Y (%)</span>
+                <span className="text-slate-400">{block.magnifier?.targetY}%</span>
+              </div>
+              <input 
+                type="range" min="0" max="100" value={block.magnifier?.targetY}
+                onChange={(e) => updateMagnifier('targetY', Number(e.target.value))}
+                className="w-full accent-orange-500"
+              />
+            </div>
+
             <div>
               <div className="flex justify-between text-sm mb-1">
                 <span>Position X (%)</span>
