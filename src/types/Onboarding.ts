@@ -20,7 +20,7 @@ export interface TextOverlay {
 
 export interface StoryBlock {
   id: string;
-  type: 'image' | 'text';
+  type: 'image' | 'text' | 'sfu-choice' | 'keys-input' | 'outro';
   imageId?: string; // URL
   crop?: CropSettings;
   magnifier?: MagnifierSettings;

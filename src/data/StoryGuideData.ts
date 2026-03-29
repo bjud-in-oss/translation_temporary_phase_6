@@ -86,9 +86,8 @@ export const SYSTEM_GUIDE: OnboardingGuide = {
       layout: '1-col',
       blocks: [
         {
-          id: 'sfu-intro',
-          type: 'text',
-          textContent: 'Välj din SFU-leverantör nedan.'
+          id: 'sfu-choice',
+          type: 'sfu-choice'
         }
       ]
     },
@@ -303,6 +302,26 @@ export const SYSTEM_GUIDE: OnboardingGuide = {
           crop: { x: 50, y: 50, zoom: 1 },
           magnifier: { x: 50, y: 50, width: 30, height: 30, zoom: 3, targetX: 50, targetY: 50 },
           textOverlay: { text: 'Redo att tolka!\nBra jobbat! Nycklarna är hämtade.', x: 10, y: 70, width: 80 }
+        }
+      ]
+    },
+    {
+      id: 'slide-15',
+      layout: '1-col',
+      blocks: [
+        {
+          id: 'keys-input',
+          type: 'keys-input'
+        }
+      ]
+    },
+    {
+      id: 'slide-16',
+      layout: '1-col',
+      blocks: [
+        {
+          id: 'outro',
+          type: 'outro'
         }
       ]
     }
