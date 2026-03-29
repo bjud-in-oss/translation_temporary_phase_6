@@ -48,17 +48,15 @@ const ByokWizard: React.FC = () => {
     try {
       await signInAnonymously(auth);
 
-      const orgData = {
-        name: 'Min Församling',
-        geminiApiKey: geminiKey,
-        sfuProvider: selectedSfu,
-        sfuConfig: {
-          apiKey: sfuKey1,
-          apiSecret: sfuKey2,
+      const code = await createOrganization(
+        'Min Församling',
+        selectedSfu || 'cloudflare',
+        {
+          geminiKey,
+          sfuKey1,
+          sfuKey2,
         }
-      };
-
-      const code = await createOrganization(orgData);
+      );
       setInviteCode(code);
       setIsSaved(true);
       setUserRole('admin');
