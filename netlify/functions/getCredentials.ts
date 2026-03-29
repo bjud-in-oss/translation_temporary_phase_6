@@ -16,7 +16,8 @@ export const handler: Handler = async (event, context) => {
           serviceAccount.private_key = serviceAccount.private_key.replace(/\\n/g, '\n');
         }
         admin.initializeApp({
-          credential: admin.credential.cert(serviceAccount)
+          credential: admin.credential.cert(serviceAccount),
+          projectId: serviceAccount.project_id
         });
       } else {
         admin.initializeApp();
@@ -65,7 +66,10 @@ export const handler: Handler = async (event, context) => {
       })
     };
   } catch (error: any) {
-    console.error('Runtime error:', error);
-    return { statusCode: 500, body: JSON.stringify({ error: 'Runtime Error: ' + error.message }) };
+    console.error('Runtime error:', error?.code, error?.message);
+    return { 
+      statusCode: 500, 
+      body: JSON.stringify({ error: `Runtime Error: ${error?.code || ''} ${error?.message || 'Unknown error'}` }) 
+    };
   }
 };
