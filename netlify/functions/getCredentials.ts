@@ -1,115 +1,71 @@
 import { Handler } from '@netlify/functions';
 import * as admin from 'firebase-admin';
 
-// Initialize Firebase Admin SDK if it hasn't been initialized yet
-if (admin.apps.length === 0) {
-  try {
-    // If FIREBASE_SERVICE_ACCOUNT is provided as an environment variable, use it.
-    // Otherwise, fallback to default initialization (which uses GOOGLE_APPLICATION_CREDENTIALS).
-    if (process.env.FIREBASE_SERVICE_ACCOUNT) {
-      const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
-      admin.initializeApp({
-        credential: admin.credential.cert(serviceAccount)
-      });
-    } else {
-      admin.initializeApp();
-    }
-  } catch (error) {
-    console.error('Firebase Admin initialization error:', error);
-  }
-}
-
 export const handler: Handler = async (event, context) => {
-  // Only allow POST requests
   if (event.httpMethod !== 'POST') {
-    return {
-      statusCode: 405,
-      body: JSON.stringify({ error: 'Method Not Allowed' })
-    };
+    return { statusCode: 405, body: JSON.stringify({ error: 'Method Not Allowed' }) };
   }
 
+  // 1. Säker initiering med fix för Netlify radbrytningar
   try {
-    // Security 1: Read Authorization header (Bearer token)
+    if (admin.apps.length === 0) {
+      if (process.env.FIREBASE_SERVICE_ACCOUNT) {
+        const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+        // FIXEN: Tvinga tillbaka bokstavliga \n till faktiska radbrytningar
+        if (serviceAccount.private_key) {
+          serviceAccount.private_key = serviceAccount.private_key.replace(/\\n/g, '\n');
+        }
+        admin.initializeApp({
+          credential: admin.credential.cert(serviceAccount)
+        });
+      } else {
+        admin.initializeApp();
+      }
+    }
+  } catch (initError: any) {
+    console.error('Firebase init error:', initError);
+    return { statusCode: 500, body: JSON.stringify({ error: 'Firebase Init Error: ' + initError.message }) };
+  }
+
+  // 2. Själva affärslogiken
+  try {
     const authHeader = event.headers.authorization;
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return {
-        statusCode: 401,
-        body: JSON.stringify({ error: 'Unauthorized: Missing or invalid token' })
-      };
+      return { statusCode: 401, body: JSON.stringify({ error: 'Unauthorized: Missing token' }) };
     }
-
     const token = authHeader.split('Bearer ')[1];
 
-    // Security 2: Verify token via admin.auth().verifyIdToken()
-    let decodedToken;
     try {
-      decodedToken = await admin.auth().verifyIdToken(token);
+      await admin.auth().verifyIdToken(token);
     } catch (error) {
-      console.error('Token verification failed:', error);
-      return {
-        statusCode: 403,
-        body: JSON.stringify({ error: 'Forbidden: Invalid token' })
-      };
+      return { statusCode: 403, body: JSON.stringify({ error: 'Forbidden: Invalid token' }) };
     }
 
-    // Read orgId from request body
-    if (!event.body) {
-      return {
-        statusCode: 400,
-        body: JSON.stringify({ error: 'Bad Request: Missing body' })
-      };
-    }
-
-    let body;
-    try {
-      body = JSON.parse(event.body);
-    } catch (error) {
-      return {
-        statusCode: 400,
-        body: JSON.stringify({ error: 'Bad Request: Invalid JSON body' })
-      };
-    }
-
+    if (!event.body) return { statusCode: 400, body: JSON.stringify({ error: 'Missing body' }) };
+    const body = JSON.parse(event.body);
     const orgId = body.orgId;
-    if (!orgId) {
-      return {
-        statusCode: 400,
-        body: JSON.stringify({ error: 'Bad Request: Missing orgId' })
-      };
-    }
+    if (!orgId) return { statusCode: 400, body: JSON.stringify({ error: 'Missing orgId' }) };
 
-    // Use Firebase Admin SDK to fetch the document organizations/${orgId}/secrets/api_keys
     const db = admin.firestore();
     const docRef = db.doc(`organizations/${orgId}/secrets/api_keys`);
     const docSnap = await docRef.get();
 
     if (!docSnap.exists) {
-      return {
-        statusCode: 404,
-        body: JSON.stringify({ error: 'Not Found: Credentials not found for this organization' })
-      };
+      return { statusCode: 404, body: JSON.stringify({ error: 'Credentials not found' }) };
     }
 
     const data = docSnap.data();
-
-    // Return the keys (geminiKey, sfuKey1, sfuKey2) with status 200
     return {
       statusCode: 200,
-      headers: {
-        'Content-Type': 'application/json'
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         geminiKey: data?.geminiKey || null,
         sfuKey1: data?.sfuKey1 || null,
         sfuKey2: data?.sfuKey2 || null
       })
     };
-
   } catch (error: any) {
-    console.error('Error in getCredentials function:', error);
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ error: 'Internal Server Error' })
-    };
+    console.error('Runtime error:', error);
+    return { statusCode: 500, body: JSON.stringify({ error: 'Runtime Error: ' + error.message }) };
   }
 };
