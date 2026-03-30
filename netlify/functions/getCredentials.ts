@@ -1,12 +1,15 @@
 import { Handler } from '@netlify/functions';
 import * as admin from 'firebase-admin';
+import { getFirestore } from 'firebase-admin/firestore';
 
 export const handler: Handler = async (event, context) => {
   if (event.httpMethod !== 'POST') {
     return { statusCode: 405, body: JSON.stringify({ error: 'Method Not Allowed' }) };
   }
 
-  // 1. Säker initiering (Körs ENBART vid Cold Start)
+  const dbId = process.env.VITE_FIREBASE_DATABASE_ID;
+
+  // 1. Säker initiering (Cold Start)
   try {
     if (admin.apps.length === 0) {
       if (process.env.FIREBASE_SERVICE_ACCOUNT) {
@@ -21,15 +24,16 @@ export const handler: Handler = async (event, context) => {
       } else {
         admin.initializeApp();
       }
-      // FIX: Sätt preferRest HÄR så det bara anropas en enda gång
-      admin.firestore().settings({ preferRest: true });
+      // Anslut till specifik named database om den finns
+      const db = dbId ? getFirestore(admin.app(), dbId) : getFirestore(admin.app());
+      db.settings({ preferRest: true });
     }
   } catch (initError: any) {
     console.error('Firebase init error:', initError);
     return { statusCode: 500, body: JSON.stringify({ error: 'Firebase Init Error: ' + initError.message }) };
   }
 
-  // 2. Själva affärslogiken (Körs på varje anrop)
+  // 2. Affärslogiken
   try {
     const authHeader = event.headers.authorization;
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -48,8 +52,8 @@ export const handler: Handler = async (event, context) => {
     const orgId = body.orgId;
     if (!orgId) return { statusCode: 400, body: JSON.stringify({ error: 'Missing orgId' }) };
 
-    const db = admin.firestore();
-    // (preferRest är borttaget härifrån för att undvika warm start krascher)
+    // Hämta från rätt databas
+    const db = dbId ? getFirestore(admin.app(), dbId) : getFirestore(admin.app());
     const docRef = db.doc(`organizations/${orgId}/secrets/api_keys`);
     const docSnap = await docRef.get();
 
