@@ -102,6 +102,12 @@ export function useGeminiLive() {
   const lastSpeechTimeRef = useRef<number>(0);
   const isHandshakingRef = useRef<boolean>(false);
   
+  // SHIELD 1: Undvik överflödiga databasanrop
+  const cachedApiKeyRef = useRef<string | null>(null);
+  
+  // SHIELD 2: Circuit Breaker för att förhindra oändliga loopar
+  const connectionFailuresRef = useRef<number[]>([]);
+  
   const connectingBufferRef = useRef<string[]>([]);
   const shieldBufferRef = useRef<string[]>([]);
   const bufferWarningShownRef = useRef<boolean>(false);
@@ -549,22 +555,28 @@ export function useGeminiLive() {
       pendingEndTurnRef.current = false;
       isHandshakingRef.current = false;
       currentPersonaRef.current = 'NORMAL';
+      cachedApiKeyRef.current = null;
   }, [sessionDisconnect, resetDiagnostics, stopAudioInput, resetQueue, resetTranscripts]); 
 
   const connect = useCallback(async (isWakeup = false) => {
       if (isHandshakingRef.current) return;
       isHandshakingRef.current = true;
 
-      let apiKey: string | null = null;
+      let apiKey: string | null = cachedApiKeyRef.current; // SHIELD 1: Läs från cache
+      
       try {
-          const orgId = await getOrgIdByInviteCode(config.currentRoom);
-          if (!orgId) {
-              throw new Error("Kunde inte hitta organisationen för detta rum.");
-          }
-          const creds = await fetchSecureCredentials(orgId);
-          apiKey = creds.geminiKey;
+          // Hämta bara från databasen om cachen är tom
           if (!apiKey) {
-              throw new Error("Ingen Gemini API-nyckel hittades för denna organisation.");
+              const orgId = await getOrgIdByInviteCode(config.currentRoom);
+              if (!orgId) {
+                  throw new Error("Kunde inte hitta organisationen för detta rum.");
+              }
+              const creds = await fetchSecureCredentials(orgId);
+              apiKey = creds.geminiKey;
+              if (!apiKey) {
+                  throw new Error("Ingen Gemini API-nyckel hittades för denna organisation.");
+              }
+              cachedApiKeyRef.current = apiKey; // Spara i cachen för framtida anrop!
           }
       } catch (e: any) {
           setError(e.message || "Kunde inte hämta API-nycklar.");
@@ -572,19 +584,14 @@ export function useGeminiLive() {
           return;
       }
       
-      // CRITICAL FIX: Inject dynamic variables into custom instruction at runtime
-      // IF custom instruction exists, inject. IF NOT, build default from presets.
       const languages = targetLanguagesRef.current;
       const l1 = languages[0] || 'Svenska';
       const l2 = languages[1] || 'English';
-      
       let sysInstruct = customInstRef.current;
       
       if (sysInstruct) {
-          // If user has custom text (with {{L1}}), resolve it now
           sysInstruct = injectVariables(sysInstruct, l1, l2);
       } else {
-          // If no custom text, build default template (Puppeteer)
           sysInstruct = buildSystemInstruction(languages, 'puppeteer');
       }
 
@@ -618,13 +625,31 @@ export function useGeminiLive() {
 
           setNotification("Ansluten!");
           setTimeout(() => setNotification(null), 2000);
+          
+          // Om anslutningen lyckas, nollställ failure-räknaren
+          connectionFailuresRef.current = [];
 
       } catch (e) {
-          setError("Kunde inte ansluta.");
+          // SHIELD 2: Circuit Breaker Logik
+          const now = Date.now();
+          // Rensa bort fel som är äldre än 10 sekunder
+          connectionFailuresRef.current = connectionFailuresRef.current.filter(time => now - time < 10000);
+          connectionFailuresRef.current.push(now);
+          
+          if (connectionFailuresRef.current.length >= 3) {
+              // Hard stop! 3 fel på 10 sekunder.
+              console.error("[Circuit Breaker] Appen har fastnat i en anslutningsloop. Stänger av.");
+              setError("Kritiskt anslutningsfel: Kontrollera dina API-nycklar. Mikrofonen har inaktiverats för säkerhets skull.");
+              sessionDisconnect(); // Tvinga stängning
+              config.setActiveMode('off'); // Stäng av via config (kräver att appen laddas om eller klickas igång)
+              connectionFailuresRef.current = []; // Reset för framtiden
+          } else {
+              setError("Kunde inte ansluta till servern.");
+          }
       } finally {
           isHandshakingRef.current = false;
       }
-  }, [sessionConnect, sessionDisconnect, inputContextRef, initAudioInput, status, initAudioEngine, config.currentRoom]);
+  }, [sessionConnect, sessionDisconnect, inputContextRef, initAudioInput, status, initAudioEngine, config.currentRoom, config.setActiveMode]);
 
   const simulateNetworkDrop = useCallback(() => {
       sessionDisconnect(); 
