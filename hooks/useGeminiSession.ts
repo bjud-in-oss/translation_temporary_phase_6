@@ -74,7 +74,7 @@ export function useGeminiSession(callbacks: SessionCallbacks) {
         activeRef.current = true;
 
         try {
-            const ai = new GoogleGenAI({ apiKey: config.apiKey });
+            const ai = new GoogleGenAI({ apiKey: config.apiKey.trim() });
             
             // DYNAMIC CONFIGURATION
             const sessionConfig = {

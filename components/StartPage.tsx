@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { collection, query, where, getDocs } from 'firebase/firestore';
-import { db } from '../firebase';
+import { db, auth } from '../firebase';
+import { signInAnonymously } from 'firebase/auth';
 import ByokWizard from './onboarding/ByokWizard';
 
 const StartPage: React.FC = () => {
@@ -19,6 +20,8 @@ const StartPage: React.FC = () => {
     setError('');
 
     try {
+      await signInAnonymously(auth); // FIX: Ge lyssnaren en gäst-badge först!
+      
       const orgsRef = collection(db, 'organizations');
       const q = query(orgsRef, where('inviteCode', '==', code));
       const querySnapshot = await getDocs(q);
