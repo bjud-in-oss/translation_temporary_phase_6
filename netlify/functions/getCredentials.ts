@@ -48,6 +48,8 @@ export const handler: Handler = async (event, context) => {
     if (!orgId) return { statusCode: 400, body: JSON.stringify({ error: 'Missing orgId' }) };
 
     const db = admin.firestore();
+    // FIX: Tvinga Firebase att använda HTTP REST istället för gRPC för att överleva i Netlify Lambda
+    db.settings({ preferRest: true });
     const docRef = db.doc(`organizations/${orgId}/secrets/api_keys`);
     const docSnap = await docRef.get();
 
