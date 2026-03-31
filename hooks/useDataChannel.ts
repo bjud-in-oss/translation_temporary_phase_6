@@ -179,6 +179,12 @@ export function useDataChannel(
     }
   }, [roomId]);
 
+  const onTranscriptReceivedRef = useRef(onTranscriptReceived);
+
+  useEffect(() => {
+    onTranscriptReceivedRef.current = onTranscriptReceived;
+  }, [onTranscriptReceived]);
+
   useEffect(() => {
     sendMessageRef.current = sendMessage;
   }, [sendMessage]);
@@ -216,8 +222,8 @@ export function useDataChannel(
       snapshot.docChanges().forEach((change) => {
         if (change.type === 'added' || change.type === 'modified') {
           const data = change.doc.data();
-          if (onTranscriptReceived) {
-            onTranscriptReceived({
+          if (onTranscriptReceivedRef.current) {
+            onTranscriptReceivedRef.current({
               ...data,
               timestamp: typeof data.timestamp === 'number' ? new Date(data.timestamp) : data.timestamp,
               lastUpdated: typeof data.lastUpdated === 'number' ? new Date(data.lastUpdated) : data.lastUpdated,
@@ -236,7 +242,7 @@ export function useDataChannel(
       unsubscribeTranscripts();
       disconnect();
     };
-  }, [roomId, connect, disconnect, handleMessage, onTranscriptReceived]);
+  }, [roomId, connect, disconnect, handleMessage]);
 
   // LATE JOINER: Request full state when joining
   useEffect(() => {

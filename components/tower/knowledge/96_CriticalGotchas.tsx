@@ -57,6 +57,15 @@ const Module96CriticalGotchas: React.FC = () => {
                     </div>
                 </div>
 
+                <div className="space-y-4">
+                    <h4 className="text-red-400 font-bold text-xs uppercase tracking-widest border-l-4 border-red-500 pl-3">5. Firebase: onSnapshot och Oändliga Re-renders (Quota Exceeded)</h4>
+                    <p className="text-xs text-slate-300 leading-relaxed ml-2">
+                        Ett av de farligaste felen i React + Firebase är att skicka in anonyma funktioner (inline callbacks) till en hook som sätter upp en <code>onSnapshot</code>-lyssnare. Eftersom funktionen får en ny minnesadress vid varje re-render, kommer <code>useEffect</code> att stänga ner och starta om Firebase-lyssnaren flera gånger i sekunden. Detta leder snabbt till "Quota Exceeded" och kraschar appen.
+                        <br/><br/>
+                        <strong>Lösning:</strong> Använd <strong>useRef-mönstret</strong> för callbacks. Spara callback-funktionen i en <code>useRef</code> som uppdateras i en separat <code>useEffect</code>. Använd sedan <code>.current</code> inuti <code>onSnapshot</code>-lyssnaren, och ta bort callbacken från lyssnarens dependency-array. Bryt även ut inline-funktioner i föräldrakomponenter till <code>useCallback</code>.
+                    </p>
+                </div>
+
             </div>
         </section>
     );

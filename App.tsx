@@ -217,14 +217,17 @@ const RoomSession: React.FC = () => {
   } = useGeminiLive();
 
   const { userRole } = useAppStore();
+
+  const handleTranscriptReceived = useCallback((transcript: any) => {
+    if (userRole === 'listener') {
+      injectRemoteTranscript(transcript);
+    }
+  }, [userRole, injectRemoteTranscript]);
+
   const { sendMessage, announceTrack, remoteStream, publishAudio, connectSfu, sfuStatus, broadcastTranscript } = useDataChannel(
     currentRoom,
     undefined,
-    (transcript) => {
-      if (userRole === 'listener') {
-        injectRemoteTranscript(transcript);
-      }
-    }
+    handleTranscriptReceived
   );
   const remoteAudioRef = useRef<HTMLAudioElement>(null);
 
