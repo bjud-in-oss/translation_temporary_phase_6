@@ -1,0 +1,14 @@
+name = "sfu-kill-switch"
+main = "src/index.ts"
+compatibility_date = "2024-01-01"
+
+[triggers]
+crons = ["0 * * * *"] # Körs varje timme
+
+[[kv_namespaces]]
+binding = "SYSTEM_KV"
+id = "DITT_KV_NAMESPACE_ID"
+
+[vars]
+CLOUDFLARE_ACCOUNT_ID = "ditt_account_id"
+# CLOUDFLARE_API_TOKEN läggs in som en secret: `wrangler secret put CLOUDFLARE_API_TOKEN`

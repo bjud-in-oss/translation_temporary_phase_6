@@ -35,6 +35,40 @@ export const handler: Handler = async (event, context) => {
 
   // 2. Affärslogiken
   try {
+    // 2.1 Kontrollera Cloudflare Kill Switch via KV REST API (Fail-safe design)
+    try {
+      if (process.env.CF_ACCOUNT_ID && process.env.CF_KV_NAMESPACE_ID && process.env.CF_API_TOKEN) {
+        const kvResponse = await fetch(
+          `https://api.cloudflare.com/client/v4/accounts/${process.env.CF_ACCOUNT_ID}/storage/kv/namespaces/${process.env.CF_KV_NAMESPACE_ID}/values/SYSTEM_STATUS`,
+          {
+            headers: {
+              "Authorization": `Bearer ${process.env.CF_API_TOKEN}`
+            }
+          }
+        );
+        
+        if (kvResponse.ok) {
+          const status = await kvResponse.text();
+          if (status === 'LOCKED') {
+            return {
+              statusCode: 403,
+              body: JSON.stringify({ error: "Systemet är tillfälligt låst på grund av bandbreddsbegränsningar. Försök igen nästa månad." })
+            };
+          }
+        } else if (kvResponse.status !== 404) {
+          // Om nyckeln inte finns (404) är det OK, men andra fel bör låsa systemet (Fail-safe)
+          throw new Error(`KV API svarade med status ${kvResponse.status}`);
+        }
+      }
+    } catch (kvError) {
+      console.error("Kunde inte verifiera SYSTEM_STATUS i KV", kvError);
+      // Fail-closed: Lås systemet om vi inte kan verifiera statusen
+      return {
+        statusCode: 500,
+        body: JSON.stringify({ error: "Kunde inte verifiera systemets säkerhetsstatus (Kill Switch). Åtkomst nekad för säkerhets skull." })
+      };
+    }
+
     const authHeader = event.headers.authorization;
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       return { statusCode: 401, body: JSON.stringify({ error: 'Unauthorized: Missing token' }) };
