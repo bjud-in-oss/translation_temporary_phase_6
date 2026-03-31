@@ -1,5 +1,5 @@
 import { collection, doc, setDoc, addDoc, serverTimestamp, query, where, getDocs } from 'firebase/firestore';
-import { db, auth } from '../../firebase';
+import { db, auth } from '../firebase';
 
 export interface ByokKeys {
   geminiKey: string;

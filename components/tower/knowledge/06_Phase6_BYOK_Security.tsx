@@ -1,104 +1,121 @@
 import React from 'react';
 
 const Phase6BYOKSecurity: React.FC = () => {
-    return (
-        <section className="mb-12 animate-in fade-in slide-in-from-bottom-8 duration-500 delay-300">
-            <h3 className="text-emerald-400 font-bold text-sm uppercase tracking-widest mb-3 border-b border-emerald-500/30 pb-1 flex items-center gap-2">
-                <span className="bg-emerald-900/50 text-emerald-200 px-2 rounded text-xs border border-emerald-500/50">FAS 6</span>
-                🔒 BYOK, Säkerhet & Multi-Tenant UX
-            </h3>
+  return (
+    <div className="space-y-6 text-gray-200">
+      <h1 className="text-3xl font-bold text-white mb-4">Fas 6: BYOK & Zero-Trust Architecture</h1>
+      <p className="text-lg leading-relaxed">
+        I denna fas övergick plattformen från en öppen prototyp till en stenhård <strong>Bring Your Own Key (BYOK)</strong>-arkitektur. 
+        Målet var att skapa ett system där användarnas API-nycklar lagras i ett moln-valv som klientens webbläsare aldrig 
+        har direkt åtkomst till.
+      </p>
 
-            <div className="bg-slate-900/80 p-5 rounded-xl border border-emerald-500/20 text-slate-300 text-sm space-y-8">
-                
-                <div className="bg-slate-950 p-4 rounded border border-slate-800 mb-6">
-                    <p className="text-[11px] text-slate-300 leading-relaxed">
-                        Denna fas markerar skiftet till en Multi-Tenant SaaS-plattform. Vi introducerar delegerad BYOK (Bring Your Own Key), en säker Netlify BFF (Backend-For-Frontend) och ett robust "Hjälp till"-flöde för föreningsdemokrati.
-                    </p>
-                </div>
+      {/* DEL 1: BACKEND & NETLIFY */}
+      <section className="mt-8 bg-gray-800/50 p-6 rounded-xl border border-gray-700">
+        <h2 className="text-2xl font-semibold text-blue-400 mb-3">Del 1: Backend & Netlify Lambda ("Dörrvakten")</h2>
+        <p className="mb-3">
+          För att skydda valvet introducerade vi <strong>Backend-For-Frontend (BFF)</strong>-mönstret via en Netlify Serverless Function (<code>getCredentials.ts</code>). 
+          Denna funktion agerar dörrvakt och använder Firebase Admin SDK för att hämta nycklarna och leverera dem säkert till anslutningen.
+        </p>
+        <ul className="list-disc pl-6 space-y-2 mb-4">
+          <li>
+            <strong>gRPC Bypass:</strong> Netlifys serverlösa miljö blockerar ofta gRPC-trafik vilket orsakade <code>5 NOT_FOUND</code>-fel. 
+            Vi löste detta genom att tvinga Firestore att använda HTTP/REST.
+          </li>
+          <li>
+            <strong>Warm-Start Skydd:</strong> För att förhindra kraschar när Netlify återanvänder containern (Warm start), implementerades en Singleton-logik.
+          </li>
+          <li>
+            <strong>Named Databases:</strong> Backend-funktionen pekades explicit mot rätt databas-ID via <code>VITE_FIREBASE_DATABASE_ID</code>.
+          </li>
+        </ul>
+        <div className="bg-gray-900 p-4 rounded-lg overflow-x-auto">
+          <pre><code className="text-sm text-green-300">
+{`// Singleton-initiering med REST-fallback
+if (admin.apps.length === 0) {
+  admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount),
+    projectId: process.env.VITE_FIREBASE_PROJECT_ID,
+  });
+  const db = admin.firestore();
+  db.settings({ preferRest: true }); // Måste sättas exakt en gång
+}`}
+          </code></pre>
+        </div>
+      </section>
 
-                {/* 1. NETLIFY BFF */}
-                <div className="space-y-4">
-                    <h4 className="text-blue-400 font-bold text-xs uppercase tracking-widest border-l-4 border-blue-500 pl-3">1. Netlify BFF (Dörrvakten)</h4>
-                    <div className="bg-slate-950 p-4 rounded border border-slate-800 space-y-3">
-                        <p className="text-[11px] text-slate-300">
-                            Netlify Functions agerar som en säker proxy ("Dörrvakt") mellan klienten och externa API:er (Gemini, SFU). Detta döljer organisationernas API-nycklar från klienten och möjliggör säkra anrop via Firebase Admin SDK.
-                        </p>
-                    </div>
-                </div>
+      {/* DEL 2: AUTENTISERING & DATABASSÄKERHET */}
+      <section className="mt-8 bg-gray-800/50 p-6 rounded-xl border border-gray-700">
+        <h2 className="text-2xl font-semibold text-purple-400 mb-3">Del 2: Autentisering & Databassäkerhet ("Låsen")</h2>
+        <p className="mb-3">
+          För att tillåta församlingsmedlemmar att ansluta anonymt, samtidigt som databasen förblir låst, kombinerade vi 
+          Firebase Anonymous Auth med strikta Firestore Security Rules.
+        </p>
+        <ul className="list-disc pl-6 space-y-2 mb-4">
+          <li>
+            <strong>Gäst-Badgen:</strong> När en användare klickar på "Anslut" tilldelas webbläsaren osynligt ett gäst-ID via <code>signInAnonymously(auth)</code>.
+          </li>
+          <li>
+            <strong>Lobbyn vs. Valvet:</strong> Databasen delades upp. Gäster får läsa rums-koder i <code>/organizations</code>, men under-samlingen <code>/secrets</code> är totalt blockerad.
+          </li>
+          <li>
+            <strong>Sanering av nycklar:</strong> För att förhindra "Silent Drops" från Googles WebSockets på grund av inklistrade osynliga tecken, trimmas alltid nyckeln (<code>apiKey.trim()</code>) innan sändning.
+          </li>
+        </ul>
+        <div className="bg-gray-900 p-4 rounded-lg overflow-x-auto">
+          <pre><code className="text-sm text-purple-300">
+{`match /organizations/{orgId} {
+  // LOBBYN: Tillåt inloggade gäster att validera rums-koder
+  allow read: if request.auth != null; 
+  
+  match /secrets/{secretId} {
+    // VALVET: Hårdkodat blockerat för alla webbläsare!
+    // Endast Netlify-Dörrvakten kommer åt denna data.
+    allow read: if false; 
+  }
+}`}
+          </code></pre>
+        </div>
+      </section>
 
-                {/* 2. THE AUTOMATED KILL-SWITCH */}
-                <div className="space-y-4 pt-4 border-t border-slate-800">
-                    <h4 className="text-red-400 font-bold text-xs uppercase tracking-widest border-l-4 border-red-500 pl-3">2. The Automated Kill-Switch</h4>
-                    <div className="bg-slate-950 p-4 rounded border border-slate-800 space-y-3">
-                        <p className="text-[11px] text-slate-300">
-                            Eftersom Cloudflare saknar en "hard cap" för sin 1 TB-gräns, riskerar organisationer med registrerade kreditkort skenande kostnader om en länk läcker eller ett rum glöms öppet.
-                        </p>
-                        <p className="text-[11px] text-slate-300">
-                            <strong>Hur vår Kill-Switch fungerar:</strong> Vi hanterar detta via Netlify BFF (Dörrvakten) och Firestore. När ett rum skapas sätts en tvingande tidsgräns (<code>expiresAt</code>).
-                        </p>
-                        <div className="mt-3 p-2 bg-red-900/20 border border-red-500/30 rounded">
-                            <p className="text-[11px] text-red-200">
-                                Netlify-funktionen vägrar konsekvent att dela ut nya SFU-tokens (eller Gemini-tokens) till klienter om rummets <code>expiresAt</code> har passerats. Detta kapar automatiskt all ny trafik till Cloudflare och agerar som en idiotsäker, serverstyrd kostnadsspärr.
-                            </p>
-                        </div>
-                    </div>
-                </div>
+      {/* DEL 3: DEFENSIV ARKITEKTUR */}
+      <section className="mt-8 bg-gray-800/50 p-6 rounded-xl border border-red-900/30">
+        <h2 className="text-2xl font-semibold text-red-400 mb-3">Del 3: Defensiv Arkitektur & Resiliens ("Sköldarna")</h2>
+        <p className="mb-3">
+          I ett händelsestyrt system där en röstdetektor (VAD) styr anslutningarna, finns en stor risk för <strong>Själv-DDoS</strong>. 
+          En felaktig API-nyckel resulterade initialt i en oändlig loop av avvisade uppkopplingar, vilket dränerade Firebase-kvoten (50 000 läsningar) på minuter.
+        </p>
+        <ul className="list-disc pl-6 space-y-2 mb-4">
+          <li>
+            <strong>Sköld 1 - Caching:</strong> Vi introducerade <code>cachedApiKeyRef</code>. Appen hämtar nyckeln från databasen <em>en enda gång</em> per session. Vid återanslutningar används minnet.
+          </li>
+          <li>
+            <strong>Sköld 2 - Circuit Breaker:</strong> Vi implementerade en felräknare (<code>connectionFailuresRef</code>). 
+            Om 3 anslutningsförsök misslyckas inom 10 sekunder utlöses en "Hard Stop".
+          </li>
+          <li>
+            <strong>Hard Stop:</strong> När säkringen går tvingas mikrofonen att stänga av sig (<code>setActiveMode('off')</code>), cachen töms, och användaren får ett kritiskt felmeddelande för att skydda systemets resurser.
+          </li>
+        </ul>
+        <div className="bg-gray-900 p-4 rounded-lg overflow-x-auto">
+          <pre><code className="text-sm text-red-300">
+{`// SHIELD 2: Circuit Breaker Logik
+const now = Date.now();
+connectionFailuresRef.current = connectionFailuresRef.current.filter(time => now - time < 10000);
+connectionFailuresRef.current.push(now);
 
-                {/* 3. STARTSIDAN & UX */}
-                <div className="space-y-4 pt-4 border-t border-slate-800">
-                    <h4 className="text-orange-400 font-bold text-xs uppercase tracking-widest border-l-4 border-orange-500 pl-3">3. Startsidan (UX)</h4>
-                    <div className="bg-slate-950 p-4 rounded border border-slate-800 space-y-3">
-                        <p className="text-[11px] text-slate-300">
-                            Startsidan är extremt avskalad. Den visar endast en inmatningsruta och en knapp för lyssnare (besökare) att ange en Gruppkod (ex. "UTBY"). Längst ner finns en diskret länk: <strong>"Hjälp till"</strong> för funktionärer.
-                        </p>
-                    </div>
-                </div>
-
-                {/* 4. HJÄLP TILL & GODKÄNNANDE */}
-                <div className="space-y-4 pt-4 border-t border-slate-800">
-                    <h4 className="text-purple-400 font-bold text-xs uppercase tracking-widest border-l-4 border-purple-500 pl-3">4. "Hjälp till"-flödet & Godkännande-loop</h4>
-                    <div className="bg-slate-950 p-4 rounded border border-slate-800 space-y-3">
-                        <ul className="text-[11px] text-slate-400 list-disc pl-4 space-y-2">
-                            <li><strong className="text-purple-300">Starta ny grupp (Main-Admin):</strong> Skapar ett konto och ställer in organisationens BYOK-nycklar (Gemini, SFU).</li>
-                            <li><strong className="text-purple-300">Hjälp till i befintlig grupp (Leader):</strong> Skapar ett konto och anger gruppens offentliga "Gruppkod". Användaren sätts då i status <code>pending</code>.</li>
-                            <li><strong className="text-red-300">Godkännande-loop:</strong> En <code>pending</code> Leader <strong>MÅSTE</strong> godkännas av en Main-Admin eller en befintlig Leader innan de får starta rum. Detta skyddar BYOK-budgeten eftersom Gruppkoden är offentlig (t.ex. uppsatt på en vägg).</li>
-                        </ul>
-                    </div>
-                </div>
-
-                {/* 5. PDF & QR-KOD */}
-                <div className="space-y-4 pt-4 border-t border-slate-800">
-                    <h4 className="text-yellow-400 font-bold text-xs uppercase tracking-widest border-l-4 border-yellow-500 pl-3">5. PDF & QR-kod Utskrift</h4>
-                    <div className="bg-slate-950 p-4 rounded border border-slate-800 space-y-3">
-                        <p className="text-[11px] text-slate-300">
-                            Appen innehåller en funktion där godkända Leaders kan generera och skriva ut en A4-PDF. Denna PDF innehåller en stor QR-kod för lyssnare, samt instruktioner och den offentliga Gruppkoden för nya funktionärer som vill "Hjälpa till".
-                        </p>
-                    </div>
-                </div>
-
-                {/* 6. MILJÖVARIABLER & FIREBASE CONFIG */}
-                <div className="space-y-4 pt-4 border-t border-slate-800">
-                    <h4 className="text-pink-400 font-bold text-xs uppercase tracking-widest border-l-4 border-pink-500 pl-3">6. Miljövariabler & Firebase Config</h4>
-                    <div className="bg-slate-950 p-4 rounded border border-slate-800 space-y-3">
-                        <p className="text-[11px] text-slate-300">
-                            Även om Firebase API-nycklar är publika och måste skickas till klienten, får de aldrig checkas in i Git (t.ex. via en <code>firebase-config.json</code>). Detta beror på tre saker:
-                        </p>
-                        <ul className="text-[11px] text-slate-400 list-disc pl-4 space-y-2">
-                            <li><strong className="text-pink-300">Delade Cloud-rättigheter:</strong> Nyckeln kan ibland ge tillgång till underliggande Google Cloud-tjänster (som Gemini API) om de delar samma projekt.</li>
-                            <li><strong className="text-pink-300">Quota Snyltning:</strong> Vem som helst kan ta nyckeln från GitHub och köra trafik mot din databas lokalt.</li>
-                            <li><strong className="text-pink-300">GitHub Scanners:</strong> GitHub flaggar automatiskt filer med <code>AIzaSy...</code> som läckor.</li>
-                        </ul>
-                        <div className="mt-3 p-2 bg-pink-900/20 border border-pink-500/30 rounded">
-                            <p className="text-[11px] text-pink-200">
-                                Lösningen är att använda Vite's <code>.env</code>-filer (<code>VITE_FIREBASE_API_KEY</code>) och bygga in variablerna under CI/CD-processen.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-        </section>
-    );
+if (connectionFailuresRef.current.length >= 3) {
+    console.error("[Circuit Breaker] Appen har fastnat. Stänger av.");
+    setError("Kritiskt anslutningsfel. Mikrofonen har inaktiverats.");
+    sessionDisconnect(); 
+    config.setActiveMode('off'); // Stäng av mikrofonen (VAD)
+    connectionFailuresRef.current = []; 
+}`}
+          </code></pre>
+        </div>
+      </section>
+    </div>
+  );
 };
 
 export default Phase6BYOKSecurity;

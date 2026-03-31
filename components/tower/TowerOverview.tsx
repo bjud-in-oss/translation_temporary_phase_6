@@ -67,6 +67,9 @@ import HardwareProfiles from './knowledge/56_HardwareProfiles';
 import LongDurationMemory from './knowledge/57_LongDurationMemory';
 import PhysicalAudioScenarios from './knowledge/58_PhysicalAudioScenarios';
 import RolesVsHardwareModes from './knowledge/59_RolesVsHardwareModes';
+import Module90EntryStrategiesDiscovery from './knowledge/90_EntryStrategies_Discovery';
+import Module91CMSOnboardingArchitecture from './knowledge/91_CMS_Onboarding_Architecture';
+import Module92SaaSTranslationCrowdsourcing from './knowledge/92_SaaS_Translation_Crowdsourcing';
 import Module93MultiTenantByokUX from './knowledge/93_MultiTenantByok_UX';
 import Module94BffSecurityNetlify from './knowledge/94_BffSecurity_Netlify';
 import Module95SfuAdapterMunging from './knowledge/95_SfuAdapter_Munging';
@@ -171,6 +174,9 @@ const TowerOverview: React.FC<TowerOverviewProps> = ({ onClose, highlightedId })
                 <LongDurationMemory />
                 <PhysicalAudioScenarios />
                 <RolesVsHardwareModes />
+                <Module90EntryStrategiesDiscovery />
+                <Module91CMSOnboardingArchitecture />
+                <Module92SaaSTranslationCrowdsourcing />
                 <Module93MultiTenantByokUX />
                 <Module94BffSecurityNetlify />
                 <Module95SfuAdapterMunging />

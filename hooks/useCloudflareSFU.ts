@@ -1,6 +1,6 @@
 import { useState, useCallback, useRef } from 'react';
-import { getOrgIdByInviteCode } from '../src/services/byokService';
-import { fetchSecureCredentials } from '../src/services/credentialsService';
+import { getOrgIdByInviteCode } from '../services/byokService';
+import { fetchSecureCredentials } from '../services/credentialsService';
 
 export type SFUStatus = 'disconnected' | 'connecting' | 'connected';
 

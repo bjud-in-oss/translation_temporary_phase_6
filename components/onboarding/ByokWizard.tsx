@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { StorySlide } from '../../src/types/Onboarding';
-import MagnifierViewer from '../../src/components/onboarding/MagnifierViewer';
-import { SYSTEM_GUIDE } from '../../src/data/StoryGuideData';
+import { StorySlide } from '../../types/Onboarding';
+import MagnifierViewer from './MagnifierViewer';
+import { SYSTEM_GUIDE } from '../../data/StoryGuideData';
 import { auth } from '../../firebase';
 import { signInAnonymously } from 'firebase/auth';
-import { createOrganization } from '../../src/services/byokService';
+import { createOrganization } from '../../services/byokService';
 import { useAppStore } from '../../stores/useAppStore';
 import QRCode from 'react-qr-code';
 

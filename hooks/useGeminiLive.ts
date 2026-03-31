@@ -10,8 +10,8 @@ import { useLiveDiagnostics } from './useLiveDiagnostics';
 import { useLiveConfig } from './useLiveConfig';
 import { useBackgroundMonitor } from './useBackgroundMonitor';
 import { useTranscriptEngine } from './useTranscriptEngine';
-import { getOrgIdByInviteCode } from '../src/services/byokService';
-import { fetchSecureCredentials } from '../src/services/credentialsService';
+import { getOrgIdByInviteCode } from '../services/byokService';
+import { fetchSecureCredentials } from '../services/credentialsService';
 
 // Helper to create 800ms of silence (Base64 PCM) for The Clean Break Protocol
 const SILENCE_BURST_B64 = (() => {

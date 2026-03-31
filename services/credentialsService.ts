@@ -1,4 +1,4 @@
-import { auth } from '../../firebase';
+import { auth } from '../firebase';
 
 export interface SecureCredentials {
   geminiKey: string | null;

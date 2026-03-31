@@ -14,7 +14,7 @@ import Tower from './components/Tower';
 import SystemPromptModal from './components/SystemPromptModal'; 
 import PinCodeModal from './components/PinCodeModal';
 import StartPage from './components/StartPage';
-import StoryBlockEditor from './src/components/onboarding/StoryBlockEditor';
+import StoryBlockEditor from './components/onboarding/StoryBlockEditor';
 import { AudioGroup } from './types';
 import { useAppStore, UserRole } from './stores/useAppStore';
 
