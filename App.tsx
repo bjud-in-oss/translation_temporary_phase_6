@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, useRef, useCallBack } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { signInAnonymously } from 'firebase/auth';
 import { auth } from './firebase';
 import { useGeminiLive } from './hooks/useGeminiLive';
