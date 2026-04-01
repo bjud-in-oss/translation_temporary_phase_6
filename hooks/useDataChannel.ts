@@ -71,7 +71,7 @@ export function useDataChannel(
   onMessageReceived?: (msg: DataChannelMessage) => void,
   onTranscriptReceived?: (transcript: any) => void
 ) {
-  const mountTimeRef = useRef(Timestamp.now());
+  const mountTimeRef = useRef(Timestamp.fromMillis(Date.now() - 10000));
   const sendMessageRef = useRef<(msg: Omit<DataChannelMessage, 'senderId' | 'senderRole'>) => void>(() => {});
   const { status, connect, disconnect, publishAudio, subscribeToTrack, remoteStream, publishedTrackRef } = useCloudflareSFU(roomId);
 
@@ -168,12 +168,22 @@ export function useDataChannel(
   const broadcastTranscript = useCallback(async (transcript: any) => {
     if (!roomId || !transcript || !transcript.id) return;
     try {
-      const payload = {
+      // Build a clean payload, omitting any undefined fields safely
+      const payload: Record<string, any> = {
         ...transcript,
         timestamp: transcript.timestamp instanceof Date ? transcript.timestamp.getTime() : transcript.timestamp,
-        lastUpdated: transcript.lastUpdated instanceof Date ? transcript.lastUpdated.getTime() : transcript.lastUpdated,
       };
-      await setDoc(doc(db, 'rooms', roomId, 'transcripts', transcript.id), payload);
+      
+      if (transcript.lastUpdated) {
+        payload.lastUpdated = transcript.lastUpdated instanceof Date ? transcript.lastUpdated.getTime() : transcript.lastUpdated;
+      }
+      
+      // Pure Javascript way to remove undefined values before Firestore submission
+      const cleanPayload = Object.fromEntries(
+        Object.entries(payload).filter(([_, v]) => v !== undefined)
+      );
+
+      await setDoc(doc(db, 'rooms', roomId, 'transcripts', transcript.id), cleanPayload);
     } catch (err) {
       handleFirestoreError(err, OperationType.WRITE, `rooms/${roomId}/transcripts`);
     }
