@@ -523,7 +523,7 @@ const RoomSession: React.FC = () => {
       {/* Hidden audio element for listeners */}
       {userRole === 'listener' && (
         <>
-          <audio ref={remoteAudioRef} playsInline style={{ display: 'none' }} />
+          <audio ref={remoteAudioRef} autoPlay playsInline style={{ display: 'none' }} />
           {(!hasJoinedAudio || audioBlocked) && (
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm">
               <div className="bg-zinc-900 p-8 rounded-2xl flex flex-col items-center gap-6 max-w-sm text-center border border-white/10 shadow-2xl">
@@ -562,27 +562,21 @@ const App: React.FC = () => {
         await signInAnonymously(auth);
       } catch (error) {
         console.error("Firebase Auth Error:", error);
+      } finally {
+        const params = new URLSearchParams(window.location.search);
+        const roleParam = params.get('role') as UserRole | null;
+        const roomParam = params.get('room');
+
+        if (roomParam) setRoomId(roomParam);
+        else setRoomId(null);
+
+        if (roleParam === 'admin' || roleParam === 'teacher') setPendingRole(roleParam);
+        else setUserRole('listener');
+
+        setIsBooting(false);
       }
     };
     initAuth();
-
-    const params = new URLSearchParams(window.location.search);
-    const roleParam = params.get('role') as UserRole | null;
-    const roomParam = params.get('room');
-
-    if (roomParam) {
-      setRoomId(roomParam);
-    } else {
-      setRoomId(null);
-    }
-
-    if (roleParam === 'admin' || roleParam === 'teacher') {
-      setPendingRole(roleParam);
-    } else {
-      setUserRole('listener');
-    }
-
-    setIsBooting(false);
   }, []);
 
   if (isBooting) {
