@@ -231,6 +231,8 @@ const RoomSession: React.FC = () => {
     undefined,
     handleTranscriptReceived
   );
+  
+  console.log("[Checkpoint 1.5] useDataChannel returned successfully. sfuStatus:", sfuStatus);
   const remoteAudioRef = useRef<HTMLAudioElement>(null);
 
   // NEW: Broadcast transcripts if we are Admin/Teacher
