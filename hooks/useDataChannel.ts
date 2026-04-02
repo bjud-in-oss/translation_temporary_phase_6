@@ -211,18 +211,15 @@ export function useDataChannel(
     console.log("[Checkpoint 3] Starting Firestore listeners and calling connect()...");
 
     const messagesQuery = query(
-      collection(db, `rooms/${roomId}/messages`),
+      collection(db, 'rooms', roomId, 'messages'),
       where('timestamp', '>=', mountTimeRef.current),
       orderBy('timestamp', 'asc')
     );
 
-    const unsubscribe = onSnapshot(messagesQuery, (snapshot) => {
+    const unsubscribeMessages = onSnapshot(messagesQuery, (snapshot) => {
       snapshot.docChanges().forEach((change) => {
         if (change.type === 'added') {
           const data = change.doc.data() as DataChannelMessage;
-          // Ignore messages that don't have a timestamp yet (local optimistic updates)
-          // or handle them. Actually, local updates will have `hasPendingWrites`.
-          // But we filter out our own messages via CLIENT_ID anyway.
           handleMessage(data);
         }
       });
@@ -231,7 +228,7 @@ export function useDataChannel(
     });
 
     const transcriptsQuery = query(
-      collection(db, `rooms/${roomId}/transcripts`),
+      collection(db, 'rooms', roomId, 'transcripts'),
       orderBy('timestamp', 'asc'),
       limitToLast(100)
     );
@@ -253,10 +250,12 @@ export function useDataChannel(
       handleFirestoreError(error, OperationType.GET, `rooms/${roomId}/transcripts`);
     });
 
+    // Start WebRTC / SFU Connection
     connect();
 
     return () => {
-      unsubscribe();
+      console.log("[DataChannel] Cleaning up listeners and disconnecting...");
+      unsubscribeMessages();
       unsubscribeTranscripts();
       disconnect();
     };

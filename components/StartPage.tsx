@@ -10,6 +10,7 @@ const StartPage: React.FC = () => {
   const [showWizard, setShowWizard] = useState(false);
   const [isJoining, setIsJoining] = useState(false);
   const [error, setError] = useState('');
+  const [isAdminLogin, setIsAdminLogin] = useState(false);
 
   const handleJoin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -34,6 +35,9 @@ const StartPage: React.FC = () => {
 
       const newUrl = new URL(window.location.href);
       newUrl.searchParams.set('room', code);
+      if (isAdminLogin) {
+        newUrl.searchParams.set('role', 'admin');
+      }
       window.location.href = newUrl.toString();
     } catch (err) {
       console.error('Error validating room code:', err);
@@ -80,10 +84,20 @@ const StartPage: React.FC = () => {
           <button 
             type="submit"
             disabled={!roomCode.trim() || isJoining}
-            className="w-full py-4 bg-indigo-600 hover:bg-indigo-500 disabled:bg-slate-800 disabled:text-slate-500 text-white rounded-xl font-bold text-lg transition-all shadow-[0_0_20px_rgba(99,102,241,0.3)] disabled:shadow-none"
+            className={`w-full py-4 text-white rounded-xl font-bold text-lg transition-all shadow-[0_0_20px_rgba(99,102,241,0.3)] disabled:shadow-none ${isAdminLogin ? 'bg-indigo-800 hover:bg-indigo-700' : 'bg-indigo-600 hover:bg-indigo-500'} disabled:bg-slate-800 disabled:text-slate-500`}
           >
-            {isJoining ? 'Ansluter...' : 'Gå med'}
+            {isJoining ? 'Ansluter...' : (isAdminLogin ? 'Gå med som Sändare (Admin)' : 'Gå med som Lyssnare')}
           </button>
+          
+          {isAdminLogin && (
+            <button
+              type="button"
+              onClick={() => setIsAdminLogin(false)}
+              className="w-full text-center text-sm text-slate-400 hover:text-white underline"
+            >
+              Ångra, jag vill bara lyssna
+            </button>
+          )}
         </form>
 
         <div className="mt-16 w-full flex flex-col items-center">
@@ -99,6 +113,10 @@ const StartPage: React.FC = () => {
               <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3 text-center">Administratör</h3>
               <div className="space-y-2">
                 <button 
+                  onClick={() => {
+                    setIsAdminLogin(true);
+                    setShowHelp(false);
+                  }}
                   className="w-full py-3 px-4 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-sm transition-colors border border-slate-700"
                 >
                   Hjälp till i en befintlig grupp
