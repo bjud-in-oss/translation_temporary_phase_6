@@ -14,9 +14,9 @@ const ByokWizard: React.FC = () => {
   const currentSlide = slides[currentStep];
 
   const [selectedSfu, setSelectedSfu] = useState<'livekit' | 'daily' | 'cloudflare' | null>('cloudflare');
-  const [geminiKey, setGeminiKey] = useState(localStorage.getItem('saved_gemini_key') || '');
-  const [sfuKey1, setSfuKey1] = useState(localStorage.getItem('saved_cf_app_id') || '');
-  const [sfuKey2, setSfuKey2] = useState(localStorage.getItem('saved_cf_app_secret') || '');
+  const [geminiKey, setGeminiKey] = useState('');
+  const [sfuKey1, setSfuKey1] = useState('');
+  const [sfuKey2, setSfuKey2] = useState('');
   const [isSaved, setIsSaved] = useState(false);
   const [inviteCode, setInviteCode] = useState('');
   const [isSaving, setIsSaving] = useState(false);
@@ -41,10 +41,6 @@ const ByokWizard: React.FC = () => {
       setError('Fyll i alla obligatoriska fält.');
       return;
     }
-
-    localStorage.setItem('saved_gemini_key', geminiKey);
-    localStorage.setItem('saved_cf_app_id', sfuKey1);
-    localStorage.setItem('saved_cf_app_secret', sfuKey2);
 
     setIsSaving(true);
     setError('');

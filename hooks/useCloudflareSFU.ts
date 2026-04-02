@@ -160,6 +160,19 @@ export function useCloudflareSFU(roomId: string | null) {
       });
       peerConnectionRef.current = pc;
 
+      // 1. Logga ICE Connection State för att se om brandväggar/nätverk blockerar
+      pc.addEventListener('iceconnectionstatechange', () => {
+        console.log(`[WebRTC ICE State]: ${pc.iceConnectionState}`);
+        if (pc.iceConnectionState === 'failed') {
+          console.error("[WebRTC Error] ICE Connection misslyckades. Detta betyder att Cloudflare och klienten inte kunde hitta en nätverksväg till varandra.");
+        }
+      });
+
+      // 2. Logga Signaling State
+      pc.addEventListener('signalingstatechange', () => {
+        console.log(`[WebRTC Signaling State]: ${pc.signalingState}`);
+      });
+
       pc.ontrack = (event) => {
         console.log("[SFU] Received remote track", event.track.kind);
         if (event.streams && event.streams.length > 0) {
@@ -186,6 +199,8 @@ export function useCloudflareSFU(roomId: string | null) {
       if (!localDescription) throw new Error("No local description");
 
       // Send offer to Cloudflare Calls API
+      console.log("[Cloudflare] Skickar SDP Offer till Cloudflare:", localDescription.sdp);
+      
       const response = await fetch(`https://rtc.live.cloudflare.com/v1/apps/${appId}/sessions/new`, {
         method: 'POST',
         headers: {
@@ -200,14 +215,17 @@ export function useCloudflareSFU(roomId: string | null) {
         })
       });
 
+      const data = await response.json();
+      console.log(`[Cloudflare] HTTP Status: ${response.status}`);
+      console.log("[Cloudflare] Svar från servern:", data);
+
       if (!response.ok) {
+        console.error("[Cloudflare Error] API nekade anslutningen. Kontrollera API-nycklar och URL.");
         throw new Error(`Cloudflare API error: ${response.status} ${response.statusText}`);
       }
-
-      const data = await response.json();
       
       // Set remote description from Cloudflare's answer
-      if (data && data.sessionDescription) {
+      if (data && data.sessionDescription && data.sessionDescription.sdp) {
         if (pc.signalingState === 'closed') return;
         await pc.setRemoteDescription(new RTCSessionDescription(data.sessionDescription));
         sessionIdRef.current = data.sessionId;
@@ -220,6 +238,7 @@ export function useCloudflareSFU(roomId: string | null) {
             pendingSubRef.current = null;
         }
       } else {
+        console.error("[Cloudflare Error] Cloudflare returnerade inget SDP Answer! Kritiskt fel i förhandlingen.");
         throw new Error("No sessionDescription in Cloudflare response");
       }
 

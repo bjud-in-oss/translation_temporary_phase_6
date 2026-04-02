@@ -1,5 +1,5 @@
 import { useEffect, useCallback, useRef } from 'react';
-import { collection, addDoc, onSnapshot, query, orderBy, serverTimestamp, Timestamp, where, doc, setDoc } from 'firebase/firestore';
+import { collection, addDoc, onSnapshot, query, orderBy, serverTimestamp, Timestamp, where, doc, setDoc, limitToLast } from 'firebase/firestore';
 import { db, auth } from '../firebase';
 import { useAppStore, UserRole } from '../stores/useAppStore';
 import { useCloudflareSFU } from './useCloudflareSFU';
@@ -225,8 +225,8 @@ export function useDataChannel(
 
     const transcriptsQuery = query(
       collection(db, `rooms/${roomId}/transcripts`),
-      where('timestamp', '>=', mountTimeRef.current.toMillis()),
-      orderBy('timestamp', 'asc')
+      orderBy('timestamp', 'asc'),
+      limitToLast(100)
     );
 
     const unsubscribeTranscripts = onSnapshot(transcriptsQuery, (snapshot) => {
