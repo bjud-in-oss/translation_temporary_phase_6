@@ -130,7 +130,11 @@ export function useCloudflareSFU(roomId: string | null) {
   }, [roomId]);
 
   const connect = useCallback(async () => {
-    if (!roomId) return;
+    console.log("[SFU] connect() anropad för rum:", roomId);
+    if (!roomId) {
+      console.warn("[SFU] connect() avbröts: roomId är null eller tomt");
+      return;
+    }
     
     let appId: string | null = null;
     let appSecret: string | null = null;

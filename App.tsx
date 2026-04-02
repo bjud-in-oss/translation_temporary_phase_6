@@ -216,7 +216,7 @@ const RoomSession: React.FC = () => {
     injectRemoteTranscript
   } = useGeminiLive();
 
-  const { userRole } = useAppStore();
+  const { userRole, roomState } = useAppStore();
 
   const handleTranscriptReceived = useCallback((transcript: any) => {
     if (userRole === 'listener') {
@@ -225,7 +225,7 @@ const RoomSession: React.FC = () => {
   }, [userRole, injectRemoteTranscript]);
 
   const { sendMessage, announceTrack, remoteStream, publishAudio, connectSfu, sfuStatus, broadcastTranscript } = useDataChannel(
-    currentRoom,
+    roomState.roomId,
     undefined,
     handleTranscriptReceived
   );
