@@ -130,16 +130,18 @@ export function useCloudflareSFU(roomId: string | null) {
   }, [roomId]);
 
   const connect = useCallback(async () => {
-    console.log("[SFU] connect() anropad för rum:", roomId);
+    console.log("[Checkpoint 4] connect() triggered in useCloudflareSFU for room:", roomId);
     if (!roomId) {
-      console.warn("[SFU] connect() avbröts: roomId är null eller tomt");
+      console.warn("[Checkpoint 4b] connect() avbröts: roomId är null eller tomt");
       return;
     }
     
     let appId: string | null = null;
     let appSecret: string | null = null;
     try {
+      console.log("[Checkpoint 4c] Fetching SFU credentials from backend...");
       const creds = await getSfuCredentials();
+      console.log("[Checkpoint 5] Credentials fetched successfully. AppID:", creds.sfuKey1 ? "Present" : "Missing");
       appId = creds.sfuKey1;
       appSecret = creds.sfuKey2;
     } catch (e) {

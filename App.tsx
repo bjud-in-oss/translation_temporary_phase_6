@@ -224,6 +224,8 @@ const RoomSession: React.FC = () => {
     }
   }, [userRole, injectRemoteTranscript]);
 
+  console.log("[Checkpoint 1] RoomSession rendering. Room ID from Store:", roomState?.roomId);
+
   const { sendMessage, announceTrack, remoteStream, publishAudio, connectSfu, sfuStatus, broadcastTranscript } = useDataChannel(
     roomState.roomId,
     undefined,

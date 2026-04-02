@@ -201,7 +201,13 @@ export function useDataChannel(
   }, [sendMessage]);
 
   useEffect(() => {
-    if (!roomId) return;
+    console.log("[Checkpoint 2] useDataChannel Hook initialized. RoomId provided:", roomId);
+    if (!roomId) {
+      console.warn("[Checkpoint 2b] useDataChannel aborted because roomId is null/empty");
+      return;
+    }
+
+    console.log("[Checkpoint 3] Starting Firestore listeners and calling connect()...");
 
     const messagesQuery = query(
       collection(db, `rooms/${roomId}/messages`),
