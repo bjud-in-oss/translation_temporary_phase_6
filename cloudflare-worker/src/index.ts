@@ -12,7 +12,7 @@ export default {
 };
 
 async function checkBandwidthAndLock(env: Env) {
-  const THRESHOLD_BYTES = 0 * 1024 * 1024 * 1024; // 950 GB
+  const THRESHOLD_BYTES = 950 * 1024 * 1024 * 1024; // 950 GB
 
   // Beräkna start och slut för innevarande månad
   const now = new Date();

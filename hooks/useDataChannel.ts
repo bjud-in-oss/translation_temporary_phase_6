@@ -71,7 +71,8 @@ export function useDataChannel(
   onMessageReceived?: (msg: DataChannelMessage) => void,
   onTranscriptReceived?: (transcript: any) => void
 ) {
-  const mountTimeRef = useRef(Timestamp.fromMillis(Date.now() - 10000));
+  // Subtract 1 hour to handle clock skew between devices and Firebase server time
+  const mountTimeRef = useRef(Timestamp.fromMillis(Date.now() - 3600000));
   const sendMessageRef = useRef<(msg: Omit<DataChannelMessage, 'senderId' | 'senderRole'>) => void>(() => {});
   const { status, connect, disconnect, publishAudio, subscribeToTrack, remoteStream, publishedTrackRef } = useCloudflareSFU(roomId);
 

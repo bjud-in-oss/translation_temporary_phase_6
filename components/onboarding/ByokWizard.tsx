@@ -13,10 +13,10 @@ const ByokWizard: React.FC = () => {
   const slides = SYSTEM_GUIDE.slides;
   const currentSlide = slides[currentStep];
 
-  const [selectedSfu, setSelectedSfu] = useState<'livekit' | 'daily' | 'cloudflare' | null>(null);
-  const [geminiKey, setGeminiKey] = useState('');
-  const [sfuKey1, setSfuKey1] = useState('');
-  const [sfuKey2, setSfuKey2] = useState('');
+  const [selectedSfu, setSelectedSfu] = useState<'livekit' | 'daily' | 'cloudflare' | null>('cloudflare');
+  const [geminiKey, setGeminiKey] = useState(localStorage.getItem('saved_gemini_key') || '');
+  const [sfuKey1, setSfuKey1] = useState(localStorage.getItem('saved_cf_app_id') || '');
+  const [sfuKey2, setSfuKey2] = useState(localStorage.getItem('saved_cf_app_secret') || '');
   const [isSaved, setIsSaved] = useState(false);
   const [inviteCode, setInviteCode] = useState('');
   const [isSaving, setIsSaving] = useState(false);
@@ -41,6 +41,10 @@ const ByokWizard: React.FC = () => {
       setError('Fyll i alla obligatoriska fält.');
       return;
     }
+
+    localStorage.setItem('saved_gemini_key', geminiKey);
+    localStorage.setItem('saved_cf_app_id', sfuKey1);
+    localStorage.setItem('saved_cf_app_secret', sfuKey2);
 
     setIsSaving(true);
     setError('');
@@ -106,27 +110,13 @@ const ByokWizard: React.FC = () => {
                 </div>
               ) : block.type === 'sfu-choice' ? (
                 <div className="p-8 flex flex-col items-center justify-center space-y-6 w-full h-full">
-                  <h2 className="text-3xl font-bold mb-4">Välj SFU Leverantör</h2>
-                  <button 
-                    onClick={() => setSelectedSfu('livekit')}
-                    className={`w-full max-w-md p-6 rounded-xl border-2 transition-all ${selectedSfu === 'livekit' ? 'border-blue-500 bg-blue-500/20' : 'border-slate-600 hover:border-slate-400'}`}
-                  >
-                    <div className="text-2xl font-bold">LiveKit</div>
-                    <div className="text-slate-400">Bäst för produktion</div>
-                  </button>
-                  <button 
-                    onClick={() => setSelectedSfu('daily')}
-                    className={`w-full max-w-md p-6 rounded-xl border-2 transition-all ${selectedSfu === 'daily' ? 'border-blue-500 bg-blue-500/20' : 'border-slate-600 hover:border-slate-400'}`}
-                  >
-                    <div className="text-2xl font-bold">Daily.co</div>
-                    <div className="text-slate-400">Enkelt att komma igång</div>
-                  </button>
-                  <button 
-                    onClick={() => setSelectedSfu('cloudflare')}
-                    className={`w-full max-w-md p-6 rounded-xl border-2 transition-all ${selectedSfu === 'cloudflare' ? 'border-blue-500 bg-blue-500/20' : 'border-slate-600 hover:border-slate-400'}`}
-                  >
+                  <h2 className="text-3xl font-bold mb-4">Ljudserver</h2>
+                  <div className="w-full max-w-md p-6 rounded-xl border-2 border-blue-500 bg-blue-500/20 text-center">
                     <div className="text-2xl font-bold">Cloudflare Calls</div>
-                    <div className="text-slate-400">Serverless & skalbart</div>
+                    <div className="text-slate-300 mt-2">Vald som standard för högsta prestanda och säkerhet.</div>
+                  </div>
+                  <button onClick={handleNext} className="mt-8 bg-white/10 hover:bg-white/20 text-white px-8 py-3 rounded-full font-bold transition-colors">
+                    Gå vidare
                   </button>
                 </div>
               ) : block.type === 'keys-input' ? (
@@ -144,41 +134,6 @@ const ByokWizard: React.FC = () => {
                         placeholder="AIzaSy..."
                       />
                     </div>
-
-                    {selectedSfu === 'livekit' && (
-                      <>
-                        <div>
-                          <label className="block text-sm font-medium text-slate-400 mb-1">LiveKit API Key</label>
-                          <input 
-                            type="text" 
-                            value={sfuKey1}
-                            onChange={(e) => setSfuKey1(e.target.value)}
-                            className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-blue-500"
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium text-slate-400 mb-1">LiveKit API Secret</label>
-                          <input 
-                            type="password" 
-                            value={sfuKey2}
-                            onChange={(e) => setSfuKey2(e.target.value)}
-                            className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-blue-500"
-                          />
-                        </div>
-                      </>
-                    )}
-
-                    {selectedSfu === 'daily' && (
-                      <div>
-                        <label className="block text-sm font-medium text-slate-400 mb-1">Daily API Key</label>
-                        <input 
-                          type="password" 
-                          value={sfuKey1}
-                          onChange={(e) => setSfuKey1(e.target.value)}
-                          className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-blue-500"
-                        />
-                      </div>
-                    )}
 
                     {selectedSfu === 'cloudflare' && (
                       <>
@@ -222,7 +177,7 @@ const ByokWizard: React.FC = () => {
                   </p>
                   
                   <div className="bg-white p-4 rounded-xl">
-                    <QRCode value={`${window.location.origin}/?invite=${inviteCode}`} size={200} />
+                    <QRCode value={`${window.location.origin}/?room=${inviteCode}&role=listener`} size={200} />
                   </div>
                   
                   <div className="text-center">
