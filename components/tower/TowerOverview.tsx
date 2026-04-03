@@ -1,81 +1,89 @@
 
 import React from 'react';
-import MasterDevelopmentPlan from './knowledge/00_MasterDevelopmentPlan';
-import Phase1CoreState from './knowledge/01_Phase1_CoreState';
-import Phase2AILogic from './knowledge/02_Phase2_AILogic';
-import Phase4UX from './knowledge/04_Phase4_UX';
-import Phase5SFU from './knowledge/05_Phase5_SFU';
-import Phase6BYOKSecurity from './knowledge/06_Phase6_BYOK_Security';
-import OverviewPurpose from './knowledge/01_OverviewPurpose';
-import OverviewProblems from './knowledge/02_OverviewProblems';
-import OverviewArchitecture from './knowledge/03_OverviewArchitecture';
-import BargeInDeepDive from './knowledge/04_BargeInDeepDive';
-import PredictionLogicDeepDive from './knowledge/05_PredictionLogicDeepDive';
-import EvaluationRealityCheck from './knowledge/06_EvaluationRealityCheck';
-import FutureOptimizationPlan from './knowledge/07_FutureOptimizationPlan';
-import StartupRaceConditionDeepDive from './knowledge/08_StartupRaceConditionDeepDive';
-import ArchitectureDeepDiveBlob from './knowledge/09_ArchitectureDeepDiveBlob';
-import FutureRisksAndPlans from './knowledge/10_FutureRisksAndPlans';
-import VadHysteresisAnalysis from './knowledge/11_VadHysteresisAnalysis';
-import VadArchitectureDeepDive from './knowledge/12_VadArchitectureDeepDive';
-import ScenarioAnalysis from './knowledge/13_ScenarioAnalysis';
-import VadDynamics from './knowledge/14_VadDynamics';
-import TheSqueezeDeepDive from './knowledge/15_TheSqueezeDeepDive';
-import RenderPipeline from './knowledge/16_RenderPipeline';
-import BucketLogic from './knowledge/17_BucketLogic';
-import TimeAnchoring from './knowledge/18_TimeAnchoring';
-import TheBlinkAnalysis from './knowledge/19_TheBlinkAnalysis';
-import AbstractionLayers from './knowledge/20_AbstractionLayers';
-import VisualHandover from './knowledge/21_VisualHandover';
-import TheAccordionEffect from './knowledge/22_TheAccordionEffect';
-import CodeArchaeology from './knowledge/23_CodeArchaeology';
-import TheStuckCounter from './knowledge/24_TheStuckCounter';
-import CleanBreakDeepDive from './knowledge/25_CleanBreakDeepDive';
-import GhostPressureDeepDive from './knowledge/26_GhostPressureDeepDive';
-import AudioEnginePotential from './knowledge/27_AudioEnginePotential';
-import HardwareIntegration from './knowledge/28_HardwareIntegration';
-import AudioMixingScenarios from './knowledge/29_AudioMixingScenarios';
-import MasterWiringGuide from './knowledge/30_MasterWiringGuide';
-import VirtualCableGuide from './knowledge/31_VirtualCableGuide';
-import SimpleJabraGuide from './knowledge/32_SimpleJabraGuide';
-import UniversalAutomation from './knowledge/33_UniversalAutomation';
-import LongDurationStrategy from './knowledge/34_LongDurationStrategy';
-import TotalSystemCritique from './knowledge/35_TotalSystemCritique';
-import AudioDistribution from './knowledge/36_AudioDistribution';
-import PuppeteerProtocol from './knowledge/37_PuppeteerProtocol';
-import TheTapeRecorderProtocol from './knowledge/38_TheTapeRecorderProtocol';
-import PromptSimplification from './knowledge/39_PromptSimplification';
-import ShieldPunctureDeepDive from './knowledge/40_ShieldPunctureDeepDive';
-import VisualDebuggingFix from './knowledge/41_VisualDebuggingFix';
-import HybridSpeedControl from './knowledge/42_HybridSpeedControl';
-import AdaptiveSlew from './knowledge/43_AdaptiveSlew';
-import TowerUnification from './knowledge/44_TowerUnification';
-import PipeliningDeepDive from './knowledge/45_PipeliningDeepDive';
-import TheBlindSpotDeepDive from './knowledge/46_TheBlindSpotDeepDive';
-import WakeUpProtocol from './knowledge/47_WakeUpProtocol';
-import DynamicPersonaInjection from './knowledge/48_DynamicPersonaInjection';
-import EcoMode from './knowledge/49_EcoMode';
-import HybridVelocity from './knowledge/50_HybridVelocity';
-import PromptEngineering from './knowledge/51_PromptEngineering';
-import SfuArchitecture from './knowledge/52_SfuArchitecture';
-import RoomAndRoleManagement from './knowledge/53_RoomAndRoleManagement';
-import AudioRoutingStateMachine from './knowledge/54_AudioRoutingStateMachine';
-import RoomAndMeetingUX from './knowledge/55_RoomAndMeetingUX';
-import HardwareProfiles from './knowledge/56_HardwareProfiles';
-import LongDurationMemory from './knowledge/57_LongDurationMemory';
-import PhysicalAudioScenarios from './knowledge/58_PhysicalAudioScenarios';
-import RolesVsHardwareModes from './knowledge/59_RolesVsHardwareModes';
-import Module90EntryStrategiesDiscovery from './knowledge/90_EntryStrategies_Discovery';
-import Module91CMSOnboardingArchitecture from './knowledge/91_CMS_Onboarding_Architecture';
-import Module92SaaSTranslationCrowdsourcing from './knowledge/92_SaaS_Translation_Crowdsourcing';
-import Module93MultiTenantByokUX from './knowledge/93_MultiTenantByok_UX';
-import Module94BffSecurityNetlify from './knowledge/94_BffSecurity_Netlify';
-import Module95SfuAdapterMunging from './knowledge/95_SfuAdapter_Munging';
-import Module96CriticalGotchas from './knowledge/96_CriticalGotchas';
-import InteractiveOnboardingEngine from './knowledge/97_InteractiveOnboardingEngine';
-import ZoomAudioMasterguide from './knowledge/97_ZoomAudioMasterguide';
-import CriticalGotchasAndAcoustics from './knowledge/98_CriticalGotchasAndAcoustics';
-import FutureVisions from './knowledge/99_FutureVisions';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+
+const MarkdownSection = ({ content }: { content: string }) => (
+    <div className="prose prose-invert max-w-none prose-headings:text-slate-200 prose-a:text-blue-400 prose-code:text-pink-400 prose-pre:bg-slate-900 prose-pre:border prose-pre:border-slate-800">
+        <ReactMarkdown remarkPlugins={[remarkGfm]}>{content}</ReactMarkdown>
+    </div>
+);
+import MasterDevelopmentPlan from '../../docs/architecture/00_MasterDevelopmentPlan.md?raw';
+import Phase1CoreState from '../../docs/architecture/01_Phase1_CoreState.md?raw';
+import Phase2AILogic from '../../docs/architecture/02_Phase2_AILogic.md?raw';
+import Phase4UX from '../../docs/architecture/04_Phase4_UX.md?raw';
+import Phase5SFU from '../../docs/architecture/05_Phase5_SFU.md?raw';
+import Phase6BYOKSecurity from '../../docs/architecture/06_Phase6_BYOK_Security.md?raw';
+import OverviewPurpose from '../../docs/architecture/01_OverviewPurpose.md?raw';
+import OverviewProblems from '../../docs/architecture/02_OverviewProblems.md?raw';
+import OverviewArchitecture from '../../docs/architecture/03_OverviewArchitecture.md?raw';
+import BargeInDeepDive from '../../docs/architecture/04_BargeInDeepDive.md?raw';
+import PredictionLogicDeepDive from '../../docs/architecture/05_PredictionLogicDeepDive.md?raw';
+import EvaluationRealityCheck from '../../docs/architecture/06_EvaluationRealityCheck.md?raw';
+import FutureOptimizationPlan from '../../docs/architecture/07_FutureOptimizationPlan.md?raw';
+import StartupRaceConditionDeepDive from '../../docs/architecture/08_StartupRaceConditionDeepDive.md?raw';
+import ArchitectureDeepDiveBlob from '../../docs/architecture/09_ArchitectureDeepDiveBlob.md?raw';
+import FutureRisksAndPlans from '../../docs/architecture/10_FutureRisksAndPlans.md?raw';
+import VadHysteresisAnalysis from '../../docs/architecture/11_VadHysteresisAnalysis.md?raw';
+import VadArchitectureDeepDive from '../../docs/architecture/12_VadArchitectureDeepDive.md?raw';
+import ScenarioAnalysis from '../../docs/architecture/13_ScenarioAnalysis.md?raw';
+import VadDynamics from '../../docs/architecture/14_VadDynamics.md?raw';
+import TheSqueezeDeepDive from '../../docs/architecture/15_TheSqueezeDeepDive.md?raw';
+import RenderPipeline from '../../docs/architecture/16_RenderPipeline.md?raw';
+import BucketLogic from '../../docs/architecture/17_BucketLogic.md?raw';
+import TimeAnchoring from '../../docs/architecture/18_TimeAnchoring.md?raw';
+import TheBlinkAnalysis from '../../docs/architecture/19_TheBlinkAnalysis.md?raw';
+import AbstractionLayers from '../../docs/architecture/20_AbstractionLayers.md?raw';
+import VisualHandover from '../../docs/architecture/21_VisualHandover.md?raw';
+import TheAccordionEffect from '../../docs/architecture/22_TheAccordionEffect.md?raw';
+import CodeArchaeology from '../../docs/architecture/23_CodeArchaeology.md?raw';
+import TheStuckCounter from '../../docs/architecture/24_TheStuckCounter.md?raw';
+import CleanBreakDeepDive from '../../docs/architecture/25_CleanBreakDeepDive.md?raw';
+import GhostPressureDeepDive from '../../docs/architecture/26_GhostPressureDeepDive.md?raw';
+import AudioEnginePotential from '../../docs/architecture/27_AudioEnginePotential.md?raw';
+import HardwareIntegration from '../../docs/architecture/28_HardwareIntegration.md?raw';
+import AudioMixingScenarios from '../../docs/architecture/29_AudioMixingScenarios.md?raw';
+import MasterWiringGuide from '../../docs/guides/30_MasterWiringGuide.md?raw';
+import VirtualCableGuide from '../../docs/guides/31_VirtualCableGuide.md?raw';
+import SimpleJabraGuide from '../../docs/guides/32_SimpleJabraGuide.md?raw';
+import UniversalAutomation from '../../docs/architecture/33_UniversalAutomation.md?raw';
+import LongDurationStrategy from '../../docs/architecture/34_LongDurationStrategy.md?raw';
+import TotalSystemCritique from '../../docs/architecture/35_TotalSystemCritique.md?raw';
+import AudioDistribution from '../../docs/architecture/36_AudioDistribution.md?raw';
+import PuppeteerProtocol from '../../docs/architecture/37_PuppeteerProtocol.md?raw';
+import TheTapeRecorderProtocol from '../../docs/architecture/38_TheTapeRecorderProtocol.md?raw';
+import PromptSimplification from '../../docs/architecture/39_PromptSimplification.md?raw';
+import ShieldPunctureDeepDive from '../../docs/architecture/40_ShieldPunctureDeepDive.md?raw';
+import VisualDebuggingFix from '../../docs/architecture/41_VisualDebuggingFix.md?raw';
+import HybridSpeedControl from '../../docs/architecture/42_HybridSpeedControl.md?raw';
+import AdaptiveSlew from '../../docs/architecture/43_AdaptiveSlew.md?raw';
+import TowerUnification from '../../docs/architecture/44_TowerUnification.md?raw';
+import PipeliningDeepDive from '../../docs/architecture/45_PipeliningDeepDive.md?raw';
+import TheBlindSpotDeepDive from '../../docs/architecture/46_TheBlindSpotDeepDive.md?raw';
+import WakeUpProtocol from '../../docs/architecture/47_WakeUpProtocol.md?raw';
+import DynamicPersonaInjection from '../../docs/architecture/48_DynamicPersonaInjection.md?raw';
+import EcoMode from '../../docs/architecture/49_EcoMode.md?raw';
+import HybridVelocity from '../../docs/architecture/50_HybridVelocity.md?raw';
+import PromptEngineering from '../../docs/architecture/51_PromptEngineering.md?raw';
+import SfuArchitecture from '../../docs/architecture/52_SfuArchitecture.md?raw';
+import RoomAndRoleManagement from '../../docs/architecture/53_RoomAndRoleManagement.md?raw';
+import AudioRoutingStateMachine from '../../docs/architecture/54_AudioRoutingStateMachine.md?raw';
+import RoomAndMeetingUX from '../../docs/architecture/55_RoomAndMeetingUX.md?raw';
+import HardwareProfiles from '../../docs/architecture/56_HardwareProfiles.md?raw';
+import LongDurationMemory from '../../docs/architecture/57_LongDurationMemory.md?raw';
+import PhysicalAudioScenarios from '../../docs/architecture/58_PhysicalAudioScenarios.md?raw';
+import RolesVsHardwareModes from '../../docs/architecture/59_RolesVsHardwareModes.md?raw';
+import Module90EntryStrategiesDiscovery from '../../docs/architecture/90_EntryStrategies_Discovery.md?raw';
+import Module91CMSOnboardingArchitecture from '../../docs/architecture/91_CMS_Onboarding_Architecture.md?raw';
+import Module92SaaSTranslationCrowdsourcing from '../../docs/architecture/92_SaaS_Translation_Crowdsourcing.md?raw';
+import Module93MultiTenantByokUX from '../../docs/architecture/93_MultiTenantByok_UX.md?raw';
+import Module94BffSecurityNetlify from '../../docs/architecture/94_BffSecurity_Netlify.md?raw';
+import Module95SfuAdapterMunging from '../../docs/architecture/95_SfuAdapter_Munging.md?raw';
+import Module96CriticalGotchas from '../../docs/architecture/96_CriticalGotchas.md?raw';
+import InteractiveOnboardingEngine from '../../docs/architecture/97_InteractiveOnboardingEngine.md?raw';
+import ZoomAudioMasterguide from '../../docs/guides/97_ZoomAudioMasterguide.md?raw';
+import CriticalGotchasAndAcoustics from '../../docs/architecture/98_CriticalGotchasAndAcoustics.md?raw';
+import FutureVisions from '../../docs/architecture/99_FutureVisions.md?raw';
 
 interface TowerOverviewProps {
     onClose: () => void;
@@ -87,100 +95,100 @@ const TowerOverview: React.FC<TowerOverviewProps> = ({ onClose, highlightedId })
         <div className="w-full flex flex-col font-sans space-y-12 text-base text-slate-300">
             {/* Render all modules with spacing */}
             <div className="space-y-10 [&>section>div]:border-0 [&>section>div]:bg-transparent [&>section>div]:p-0 [&>section>h3]:text-sm [&>section>h3]:mb-4">
-                <MasterDevelopmentPlan />
-                <Phase1CoreState />
-                <Phase2AILogic />
-                <Phase4UX />
-                <Phase5SFU />
-                <Phase6BYOKSecurity />
-                <OverviewPurpose />
-                <OverviewProblems />
-                <OverviewArchitecture />
-                <BargeInDeepDive />
-                <PredictionLogicDeepDive />
-                <EvaluationRealityCheck />
-                <FutureOptimizationPlan />
-                <StartupRaceConditionDeepDive />
-                <ArchitectureDeepDiveBlob />
-                <FutureRisksAndPlans />
-                <VadHysteresisAnalysis />
-                <VadArchitectureDeepDive />
-                <ScenarioAnalysis />
-                <VadDynamics />
-                <TheSqueezeDeepDive />
+                <MarkdownSection content={MasterDevelopmentPlan} />
+                <MarkdownSection content={Phase1CoreState} />
+                <MarkdownSection content={Phase2AILogic} />
+                <MarkdownSection content={Phase4UX} />
+                <MarkdownSection content={Phase5SFU} />
+                <MarkdownSection content={Phase6BYOKSecurity} />
+                <MarkdownSection content={OverviewPurpose} />
+                <MarkdownSection content={OverviewProblems} />
+                <MarkdownSection content={OverviewArchitecture} />
+                <MarkdownSection content={BargeInDeepDive} />
+                <MarkdownSection content={PredictionLogicDeepDive} />
+                <MarkdownSection content={EvaluationRealityCheck} />
+                <MarkdownSection content={FutureOptimizationPlan} />
+                <MarkdownSection content={StartupRaceConditionDeepDive} />
+                <MarkdownSection content={ArchitectureDeepDiveBlob} />
+                <MarkdownSection content={FutureRisksAndPlans} />
+                <MarkdownSection content={VadHysteresisAnalysis} />
+                <MarkdownSection content={VadArchitectureDeepDive} />
+                <MarkdownSection content={ScenarioAnalysis} />
+                <MarkdownSection content={VadDynamics} />
+                <MarkdownSection content={TheSqueezeDeepDive} />
                 
                 {/* GRAPHICS & RENDERING DEEP DIVE */}
-                <RenderPipeline />
-                <BucketLogic />
-                <TimeAnchoring />
-                <TheBlinkAnalysis />
-                <AbstractionLayers />
-                <VisualHandover />
-                <TheAccordionEffect />
-                <CodeArchaeology />
-                <TheStuckCounter />
+                <MarkdownSection content={RenderPipeline} />
+                <MarkdownSection content={BucketLogic} />
+                <MarkdownSection content={TimeAnchoring} />
+                <MarkdownSection content={TheBlinkAnalysis} />
+                <MarkdownSection content={AbstractionLayers} />
+                <MarkdownSection content={VisualHandover} />
+                <MarkdownSection content={TheAccordionEffect} />
+                <MarkdownSection content={CodeArchaeology} />
+                <MarkdownSection content={TheStuckCounter} />
                 
                 {/* PROTOCOLS */}
-                <CleanBreakDeepDive />
-                <GhostPressureDeepDive />
+                <MarkdownSection content={CleanBreakDeepDive} />
+                <MarkdownSection content={GhostPressureDeepDive} />
                 
                 {/* FUTURE DEV */}
-                <AudioEnginePotential />
-                <HardwareIntegration />
-                <AudioMixingScenarios />
+                <MarkdownSection content={AudioEnginePotential} />
+                <MarkdownSection content={HardwareIntegration} />
+                <MarkdownSection content={AudioMixingScenarios} />
                 
                 {/* THE MASTER GUIDES */}
-                <MasterWiringGuide />
-                <VirtualCableGuide />
-                <SimpleJabraGuide />
-                <UniversalAutomation />
-                <LongDurationStrategy />
+                <MarkdownSection content={MasterWiringGuide} />
+                <MarkdownSection content={VirtualCableGuide} />
+                <MarkdownSection content={SimpleJabraGuide} />
+                <MarkdownSection content={UniversalAutomation} />
+                <MarkdownSection content={LongDurationStrategy} />
                 
                 {/* THE DISTRIBUTION & CRITIQUE */}
-                <TotalSystemCritique />
-                <AudioDistribution />
+                <MarkdownSection content={TotalSystemCritique} />
+                <MarkdownSection content={AudioDistribution} />
                 
                 {/* THE PUPPETEER & NEW PROTOCOLS */}
-                <PuppeteerProtocol />
-                <TheTapeRecorderProtocol />
-                <PromptSimplification />
+                <MarkdownSection content={PuppeteerProtocol} />
+                <MarkdownSection content={TheTapeRecorderProtocol} />
+                <MarkdownSection content={PromptSimplification} />
                 
                 {/* CRITICAL BUG FIXES & ENGINE UPDATES */}
-                <ShieldPunctureDeepDive />
-                <VisualDebuggingFix />
-                <HybridSpeedControl />
-                <AdaptiveSlew />
-                <TowerUnification />
-                <PipeliningDeepDive />
-                <TheBlindSpotDeepDive />
-                <WakeUpProtocol />
-                <DynamicPersonaInjection />
-                <EcoMode />
-                <HybridVelocity />
+                <MarkdownSection content={ShieldPunctureDeepDive} />
+                <MarkdownSection content={VisualDebuggingFix} />
+                <MarkdownSection content={HybridSpeedControl} />
+                <MarkdownSection content={AdaptiveSlew} />
+                <MarkdownSection content={TowerUnification} />
+                <MarkdownSection content={PipeliningDeepDive} />
+                <MarkdownSection content={TheBlindSpotDeepDive} />
+                <MarkdownSection content={WakeUpProtocol} />
+                <MarkdownSection content={DynamicPersonaInjection} />
+                <MarkdownSection content={EcoMode} />
+                <MarkdownSection content={HybridVelocity} />
                 
                 {/* PROMPT & LANGUAGE */}
-                <PromptEngineering />
+                <MarkdownSection content={PromptEngineering} />
                 
                 {/* ARCHITECTURE SHIFT */}
-                <SfuArchitecture />
-                <RoomAndRoleManagement />
-                <AudioRoutingStateMachine />
-                <RoomAndMeetingUX />
-                <HardwareProfiles />
-                <LongDurationMemory />
-                <PhysicalAudioScenarios />
-                <RolesVsHardwareModes />
-                <Module90EntryStrategiesDiscovery />
-                <Module91CMSOnboardingArchitecture />
-                <Module92SaaSTranslationCrowdsourcing />
-                <Module93MultiTenantByokUX />
-                <Module94BffSecurityNetlify />
-                <Module95SfuAdapterMunging />
-                <Module96CriticalGotchas />
-                <InteractiveOnboardingEngine />
-                <ZoomAudioMasterguide />
-                <CriticalGotchasAndAcoustics />
-                <FutureVisions />
+                <MarkdownSection content={SfuArchitecture} />
+                <MarkdownSection content={RoomAndRoleManagement} />
+                <MarkdownSection content={AudioRoutingStateMachine} />
+                <MarkdownSection content={RoomAndMeetingUX} />
+                <MarkdownSection content={HardwareProfiles} />
+                <MarkdownSection content={LongDurationMemory} />
+                <MarkdownSection content={PhysicalAudioScenarios} />
+                <MarkdownSection content={RolesVsHardwareModes} />
+                <MarkdownSection content={Module90EntryStrategiesDiscovery} />
+                <MarkdownSection content={Module91CMSOnboardingArchitecture} />
+                <MarkdownSection content={Module92SaaSTranslationCrowdsourcing} />
+                <MarkdownSection content={Module93MultiTenantByokUX} />
+                <MarkdownSection content={Module94BffSecurityNetlify} />
+                <MarkdownSection content={Module95SfuAdapterMunging} />
+                <MarkdownSection content={Module96CriticalGotchas} />
+                <MarkdownSection content={InteractiveOnboardingEngine} />
+                <MarkdownSection content={ZoomAudioMasterguide} />
+                <MarkdownSection content={CriticalGotchasAndAcoustics} />
+                <MarkdownSection content={FutureVisions} />
             </div>
             
             {/* End Marker to confirm scroll reach */}
