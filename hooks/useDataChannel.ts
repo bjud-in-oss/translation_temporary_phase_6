@@ -170,9 +170,12 @@ export function useDataChannel(
   const broadcastTranscript = useCallback(async (transcript: any) => {
     if (!roomId || !transcript || !transcript.id) return;
     try {
+      const { displayName } = useAppStore.getState();
       // Build a clean payload, omitting any undefined fields safely
       const payload: Record<string, any> = {
         ...transcript,
+        senderId: CLIENT_ID,
+        senderName: displayName || 'Admin',
         timestamp: transcript.timestamp instanceof Date ? transcript.timestamp.getTime() : transcript.timestamp,
       };
       

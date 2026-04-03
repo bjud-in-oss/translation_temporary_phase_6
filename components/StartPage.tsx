@@ -3,9 +3,11 @@ import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db, auth } from '../firebase';
 import { signInAnonymously } from 'firebase/auth';
 import ByokWizard from './onboarding/ByokWizard';
+import { useAppStore } from '../stores/useAppStore';
 
 const StartPage: React.FC = () => {
   const [roomCode, setRoomCode] = useState('');
+  const { displayName, setDisplayName } = useAppStore();
   const [showHelp, setShowHelp] = useState(false);
   const [showWizard, setShowWizard] = useState(false);
   const [isJoining, setIsJoining] = useState(false);
@@ -15,7 +17,7 @@ const StartPage: React.FC = () => {
   const handleJoin = async (e: React.FormEvent) => {
     e.preventDefault();
     const code = roomCode.trim().toUpperCase();
-    if (!code) return;
+    if (!code || !displayName.trim()) return;
 
     setIsJoining(true);
     setError('');
@@ -72,6 +74,15 @@ const StartPage: React.FC = () => {
           <div>
             <input 
               type="text" 
+              value={displayName}
+              onChange={(e) => setDisplayName(e.target.value)}
+              placeholder="Ditt namn"
+              className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-4 text-center text-xl text-white placeholder:text-slate-600 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all mb-4"
+              maxLength={30}
+              disabled={isJoining}
+            />
+            <input 
+              type="text" 
               value={roomCode}
               onChange={(e) => setRoomCode(e.target.value)}
               placeholder="Ange din rumskod (ex. UTBY)"
@@ -83,7 +94,7 @@ const StartPage: React.FC = () => {
           {error && <p className="text-red-400 text-sm text-center">{error}</p>}
           <button 
             type="submit"
-            disabled={!roomCode.trim() || isJoining}
+            disabled={!roomCode.trim() || !displayName.trim() || isJoining}
             className={`w-full py-4 text-white rounded-xl font-bold text-lg transition-all shadow-[0_0_20px_rgba(99,102,241,0.3)] disabled:shadow-none ${isAdminLogin ? 'bg-indigo-800 hover:bg-indigo-700' : 'bg-indigo-600 hover:bg-indigo-500'} disabled:bg-slate-800 disabled:text-slate-500`}
           >
             {isJoining ? 'Ansluter...' : (isAdminLogin ? 'Gå med som Sändare (Admin)' : 'Gå med som Lyssnare')}

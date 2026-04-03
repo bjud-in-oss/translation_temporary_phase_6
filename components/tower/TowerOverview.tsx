@@ -3,7 +3,6 @@ import React from 'react';
 import MasterDevelopmentPlan from './knowledge/00_MasterDevelopmentPlan';
 import Phase1CoreState from './knowledge/01_Phase1_CoreState';
 import Phase2AILogic from './knowledge/02_Phase2_AILogic';
-import Phase3AudioEngine from './knowledge/03_Phase3_AudioEngine';
 import Phase4UX from './knowledge/04_Phase4_UX';
 import Phase5SFU from './knowledge/05_Phase5_SFU';
 import Phase6BYOKSecurity from './knowledge/06_Phase6_BYOK_Security';
@@ -91,7 +90,6 @@ const TowerOverview: React.FC<TowerOverviewProps> = ({ onClose, highlightedId })
                 <MasterDevelopmentPlan />
                 <Phase1CoreState />
                 <Phase2AILogic />
-                <Phase3AudioEngine />
                 <Phase4UX />
                 <Phase5SFU />
                 <Phase6BYOKSecurity />

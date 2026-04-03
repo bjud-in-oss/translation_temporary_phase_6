@@ -15,12 +15,23 @@ export interface ParticipantState {
   handRaised: boolean;
 }
 
+export interface UnifiedEvent {
+  id: string;
+  senderId: string;
+  senderName: string;
+  type: 'transcript' | 'hand_raised' | 'status';
+  text?: string;
+  timestamp: number;
+}
+
 export interface AppState {
   // 1. Separation of Role and Hardware
   userRole: UserRole;
   hardwareMode: HardwareMode;
+  displayName: string;
   setUserRole: (role: UserRole) => void;
   setHardwareMode: (mode: HardwareMode) => void;
+  setDisplayName: (name: string) => void;
 
   // 2. Room and Meeting Logic
   roomState: RoomState;
@@ -40,6 +51,11 @@ export interface AppState {
   // 5. Security and Recovery
   autoReconnect: boolean;
   setAutoReconnect: (auto: boolean) => void;
+
+  // 6. Unified Flow Events
+  events: UnifiedEvent[];
+  addEvent: (event: UnifiedEvent) => void;
+  clearEvents: () => void;
 }
 
 export const useAppStore = create<AppState>()(
@@ -47,9 +63,11 @@ export const useAppStore = create<AppState>()(
     (set, get) => ({
       userRole: 'listener',
       hardwareMode: 'simple',
+      displayName: '',
       
       setUserRole: (role) => set({ userRole: role }),
       setHardwareMode: (mode) => set({ hardwareMode: mode }),
+      setDisplayName: (name) => set({ displayName: name }),
 
       roomState: {
         roomId: null,
@@ -86,11 +104,24 @@ export const useAppStore = create<AppState>()(
 
       autoReconnect: true,
       setAutoReconnect: (autoReconnect) => set({ autoReconnect }),
+
+      events: [],
+      addEvent: (event) => set((state) => {
+        // Update existing event if it has the same ID, otherwise append
+        const existingIndex = state.events.findIndex(e => e.id === event.id);
+        if (existingIndex >= 0) {
+          const newEvents = [...state.events];
+          newEvents[existingIndex] = event;
+          return { events: newEvents };
+        }
+        return { events: [...state.events, event] };
+      }),
+      clearEvents: () => set({ events: [] }),
     }),
     {
       name: 'hardware-mode-storage',
-      // Only persist hardwareMode to localStorage per device as per requirements
-      partialize: (state) => ({ hardwareMode: state.hardwareMode }),
+      // Only persist hardwareMode and displayName to localStorage per device as per requirements
+      partialize: (state) => ({ hardwareMode: state.hardwareMode, displayName: state.displayName }),
     }
   )
 );

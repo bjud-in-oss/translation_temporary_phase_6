@@ -5,7 +5,7 @@ import { auth } from './firebase';
 import { useGeminiLive } from './hooks/useGeminiLive';
 import { useWakeLock } from './hooks/useWakeLock';
 import { useDataChannel } from './hooks/useDataChannel';
-import { SubtitleOverlay } from './components/SubtitleOverlay';
+import UnifiedFlow from './components/UnifiedFlow';
 import HeaderControls from './components/HeaderControls';
 import CalibrationModal from './components/CalibrationModal';
 import LanguageSelectorModal from './components/LanguageSelectorModal';
@@ -222,6 +222,14 @@ const RoomSession: React.FC = () => {
     if (userRole === 'listener') {
       injectRemoteTranscript(transcript);
     }
+    useAppStore.getState().addEvent({
+      id: transcript.id,
+      senderId: transcript.senderId || 'unknown',
+      senderName: transcript.senderName || 'Okänd',
+      type: 'transcript',
+      text: transcript.text,
+      timestamp: transcript.timestamp instanceof Date ? transcript.timestamp.getTime() : transcript.timestamp
+    });
   }, [userRole, injectRemoteTranscript]);
 
   console.log("[Checkpoint 1] RoomSession rendering. Room ID from Store:", roomState?.roomId);
@@ -449,13 +457,7 @@ const RoomSession: React.FC = () => {
       <div 
         className={`flex-1 w-full relative z-10 flex flex-col transition-opacity duration-700 ease-in-out ${showSubtitles ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
       >
-          <SubtitleOverlay 
-            activeGroup={activeGroup}
-            activePhraseTiming={activePhraseTiming}
-            history={history}
-            queue={queue}
-            audioContext={audioContext}
-          />
+          <UnifiedFlow />
       </div>
       
       {debugMode && (

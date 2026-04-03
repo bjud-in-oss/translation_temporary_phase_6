@@ -24,6 +24,8 @@ export function useAudioEngine() {
     const micStreamRef = useRef<MediaStream | null>(null);
     const micSourceNodeRef = useRef<MediaStreamAudioSourceNode | null>(null);
     const compressorNodeRef = useRef<DynamicsCompressorNode | null>(null);
+    const micRadiomixGainRef = useRef<GainNode | null>(null);
+    const aiRadiomixGainRef = useRef<GainNode | null>(null);
     const aiLocalGainNodeRef = useRef<GainNode | null>(null);
     const radiomixDestinationRef = useRef<MediaStreamAudioDestinationNode | null>(null);
     const mergerNodeRef = useRef<ChannelMergerNode | null>(null);
@@ -43,6 +45,8 @@ export function useAudioEngine() {
         // Clean up old routing
         try { aiNode.disconnect(); } catch(e) {}
         try { micSourceNodeRef.current?.disconnect(); } catch(e) {}
+        try { micRadiomixGainRef.current?.disconnect(); } catch(e) {}
+        try { aiRadiomixGainRef.current?.disconnect(); } catch(e) {}
         try { compressorNodeRef.current?.disconnect(); } catch(e) {}
         try { aiLocalGainNodeRef.current?.disconnect(); } catch(e) {}
         try { mergerNodeRef.current?.disconnect(); } catch(e) {}
@@ -57,20 +61,34 @@ export function useAudioEngine() {
             comp.release.value = 0.25;
             compressorNodeRef.current = comp;
         }
+        if (!micRadiomixGainRef.current) {
+            const gain = ctx.createGain();
+            gain.gain.value = 0.15; // Duck mic to 15%
+            micRadiomixGainRef.current = gain;
+        }
+        if (!aiRadiomixGainRef.current) {
+            const gain = ctx.createGain();
+            gain.gain.value = 1.0; // AI at 100%
+            aiRadiomixGainRef.current = gain;
+        }
         if (!aiLocalGainNodeRef.current) aiLocalGainNodeRef.current = ctx.createGain();
         if (!radiomixDestinationRef.current) radiomixDestinationRef.current = ctx.createMediaStreamDestination();
         
         const compressor = compressorNodeRef.current;
+        const micRadiomixGain = micRadiomixGainRef.current;
+        const aiRadiomixGain = aiRadiomixGainRef.current;
         const aiLocalGain = aiLocalGainNodeRef.current;
         const radiomixDest = radiomixDestinationRef.current;
 
-        // 1. Ducking Logic (DynamicsCompressorNode)
-        // Connect Mic to Compressor
+        // 1. Ducking Logic (GainNode + DynamicsCompressorNode)
+        // Connect Mic to MicGain, then to Compressor
         if (micSourceNodeRef.current) {
-            micSourceNodeRef.current.connect(compressor);
+            micSourceNodeRef.current.connect(micRadiomixGain);
+            micRadiomixGain.connect(compressor);
         }
-        // Connect AI node to Compressor
-        aiNode.connect(compressor);
+        // Connect AI node to AIGain, then to Compressor
+        aiNode.connect(aiRadiomixGain);
+        aiRadiomixGain.connect(compressor);
 
         // 2. Radiomix = Compressor Output
         compressor.connect(radiomixDest);
