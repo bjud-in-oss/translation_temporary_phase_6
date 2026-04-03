@@ -7,7 +7,6 @@ import Phase3AudioEngine from './knowledge/03_Phase3_AudioEngine';
 import Phase4UX from './knowledge/04_Phase4_UX';
 import Phase5SFU from './knowledge/05_Phase5_SFU';
 import Phase6BYOKSecurity from './knowledge/06_Phase6_BYOK_Security';
-import DatabaseSchema from './knowledge/07_Database_Schema';
 import OverviewPurpose from './knowledge/01_OverviewPurpose';
 import OverviewProblems from './knowledge/02_OverviewProblems';
 import OverviewArchitecture from './knowledge/03_OverviewArchitecture';
@@ -96,7 +95,6 @@ const TowerOverview: React.FC<TowerOverviewProps> = ({ onClose, highlightedId })
                 <Phase4UX />
                 <Phase5SFU />
                 <Phase6BYOKSecurity />
-                <DatabaseSchema />
                 <OverviewPurpose />
                 <OverviewProblems />
                 <OverviewArchitecture />
